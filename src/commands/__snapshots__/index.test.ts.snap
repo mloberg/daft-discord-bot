@@ -1,0 +1,194 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`_help returns a list of all commands 1`] = `
+[MockFunction] {
+  "calls": Array [
+    Array [
+      Array [
+        "Here is a list of available commands:",
+        "help, add, next, pause, ping, play, resume, stop, volume",
+        "Get more details with \\"_help [command]\\"",
+      ],
+      Object {
+        "split": true,
+      },
+    ],
+  ],
+  "results": Array [
+    Object {
+      "type": "return",
+      "value": Object {
+        "send": [MockFunction] {
+          "calls": Array [
+            Array [
+              Array [
+                "Here is a list of available commands:",
+                "help, add, next, pause, ping, play, resume, stop, volume",
+                "Get more details with \\"_help [command]\\"",
+              ],
+              Object {
+                "split": true,
+              },
+            ],
+          ],
+          "results": [Circular],
+        },
+      },
+    },
+  ],
+}
+`;
+
+exports[`_help returns the details for the add command 1`] = `
+[MockFunction] {
+  "calls": Array [
+    Array [
+      Array [
+        "**add**: Add a song",
+        "*usage*: \`_add [FILE] [...TAGS]\`",
+        "*examples*: \`_add counting-the-cost.webm dark menacing epic\`",
+      ],
+      Object {
+        "split": true,
+      },
+    ],
+  ],
+  "results": Array [
+    Object {
+      "type": "return",
+      "value": Object {
+        "send": [MockFunction] {
+          "calls": Array [
+            Array [
+              Array [
+                "**add**: Add a song",
+                "*usage*: \`_add [FILE] [...TAGS]\`",
+                "*examples*: \`_add counting-the-cost.webm dark menacing epic\`",
+              ],
+              Object {
+                "split": true,
+              },
+            ],
+          ],
+          "results": [Circular],
+        },
+      },
+    },
+  ],
+}
+`;
+
+exports[`_help returns the details for the help command 1`] = `
+[MockFunction] {
+  "calls": Array [
+    Array [
+      Array [
+        "**help**: Get help with commands",
+        "*aliases*: commands",
+        "*usage*: \`_help [COMMAND]\`",
+      ],
+      Object {
+        "split": true,
+      },
+    ],
+  ],
+  "results": Array [
+    Object {
+      "type": "return",
+      "value": Object {
+        "send": [MockFunction] {
+          "calls": Array [
+            Array [
+              Array [
+                "**help**: Get help with commands",
+                "*aliases*: commands",
+                "*usage*: \`_help [COMMAND]\`",
+              ],
+              Object {
+                "split": true,
+              },
+            ],
+          ],
+          "results": [Circular],
+        },
+      },
+    },
+  ],
+}
+`;
+
+exports[`_help returns the details for the play command 1`] = `
+[MockFunction] {
+  "calls": Array [
+    Array [
+      Array [
+        "**play**: Start a playlist",
+        "*aliases*: start",
+        "*usage*: \`_play [...TAGS]\`",
+      ],
+      Object {
+        "split": true,
+      },
+    ],
+  ],
+  "results": Array [
+    Object {
+      "type": "return",
+      "value": Object {
+        "send": [MockFunction] {
+          "calls": Array [
+            Array [
+              Array [
+                "**play**: Start a playlist",
+                "*aliases*: start",
+                "*usage*: \`_play [...TAGS]\`",
+              ],
+              Object {
+                "split": true,
+              },
+            ],
+          ],
+          "results": [Circular],
+        },
+      },
+    },
+  ],
+}
+`;
+
+exports[`_help returns the details for the volume command 1`] = `
+[MockFunction] {
+  "calls": Array [
+    Array [
+      Array [
+        "**volume**: Set the playback volume",
+        "*usage*: \`_volume [VOLUME]\`",
+      ],
+      Object {
+        "split": true,
+      },
+    ],
+  ],
+  "results": Array [
+    Object {
+      "type": "return",
+      "value": Object {
+        "send": [MockFunction] {
+          "calls": Array [
+            Array [
+              Array [
+                "**volume**: Set the playback volume",
+                "*usage*: \`_volume [VOLUME]\`",
+              ],
+              Object {
+                "split": true,
+              },
+            ],
+          ],
+          "results": [Circular],
+        },
+      },
+    },
+  ],
+}
+`;
