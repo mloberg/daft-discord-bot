@@ -8,7 +8,7 @@ import { env } from './utils';
 
 const client = new Client();
 
-const prefix = env('BOT_PREFIX', '%');
+const prefix = env('BOT_PREFIX', '_');
 
 client.once('ready', () => {
     if (!client.user) {
