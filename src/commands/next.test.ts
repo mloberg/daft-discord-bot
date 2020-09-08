@@ -3,6 +3,7 @@ import { ReadStream } from 'fs';
 import { mocked } from 'ts-jest/utils';
 
 import { FriendlyError } from '../error';
+import Logger from '../logger';
 import Playlist from '../playlist';
 import command from './next';
 
@@ -12,6 +13,7 @@ const mocks = {
     dispatcherEvent: jest.fn(),
     disconnect: jest.fn(),
     playlist: mocked(Playlist),
+    logger: mocked(Logger),
 };
 
 jest.mock('discord.js', () => {
@@ -48,6 +50,7 @@ jest.mock('discord.js', () => {
 });
 
 jest.mock('../playlist');
+jest.mock('../logger');
 
 describe('_next configuration', () => {
     it('should have basic command infomation', () => {
@@ -71,6 +74,7 @@ describe('_next', () => {
         mocks.disconnect.mockClear();
         mocks.dispatcher.mockClear();
         mocks.playlist.next.mockClear();
+        mocks.logger.error.mockClear();
     });
 
     it('plays the next song', async () => {
@@ -91,7 +95,14 @@ describe('_next', () => {
         const [error, errorFunc] = mocks.dispatcherEvent.mock.calls[0];
         expect(error).toEqual('error');
         expect(mocks.disconnect).toHaveBeenCalledTimes(0);
-        errorFunc(new Error('foo'));
+        const err = new Error('foo');
+        err.stack = 'error stack';
+        errorFunc(err);
+        expect(mocks.logger.error).toHaveBeenCalledTimes(1);
+        expect(mocks.logger.error).toHaveBeenLastCalledWith(
+            { guild: 'testing', room: 'daft-test', stack: 'error stack', type: 'Error' },
+            'foo',
+        );
         expect(mocks.disconnect).toHaveBeenCalledTimes(1);
 
         const [finish, finishFunc] = mocks.dispatcherEvent.mock.calls[1];

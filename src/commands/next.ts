@@ -29,8 +29,8 @@ const command: Command = {
 
         const dispatcher = connection.play(createReadStream(song), { type: 'webm/opus' });
 
-        dispatcher.on('error', (error) => {
-            logger.error({ guild, room, error }, 'encountered error when playing track');
+        dispatcher.on('error', (err) => {
+            logger.error({ guild, room, type: err.name, stack: err.stack }, err.message);
             connection.disconnect();
         });
 
