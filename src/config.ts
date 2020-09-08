@@ -1,16 +1,20 @@
 import joi from 'joi';
 import { LevelWithSilent } from 'pino';
 
-const schema = joi
+export const schema = joi
     .object({
-        NODE_ENV: joi.string().valid('development', 'test', 'production').default('production'),
-        LOG_LEVEL: joi.string().valid('fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent').default('info'),
+        NODE_ENV: joi.string().lowercase().valid('development', 'test', 'production').default('production'),
+        LOG_LEVEL: joi
+            .string()
+            .valid('fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent')
+            .lowercase()
+            .default('info'),
         DEBUG: joi.boolean().default(false),
         SONG_FILE: joi
             .string()
             .regex(/\.json$/)
             .default('songs.json'),
-        BOT_PREFIX: joi.string().default('_'),
+        BOT_PREFIX: joi.string().invalid('@').default('_'),
         BOT_TOKEN: joi.string().presence(process.env.NODE_ENV === 'test' ? 'optional' : 'required'),
     })
     .unknown()
