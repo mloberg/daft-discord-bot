@@ -1,8 +1,8 @@
 import { Message } from 'discord.js';
 
+import config from '../config';
 import { FriendlyError } from '../error';
 import { Arguments, Command } from '../types';
-import { env } from '../utils';
 import add from './add';
 import next from './next';
 import pause from './pause';
@@ -11,8 +11,6 @@ import play from './play';
 import resume from './resume';
 import stop from './stop';
 import volume from './volume';
-
-const prefix = env('BOT_PREFIX', '_');
 
 export class Commands {
     private commands: Command[] = [];
@@ -41,7 +39,7 @@ export const help: Command = {
                 [
                     'Here is a list of available commands:',
                     commands.list().join(', '),
-                    `Get more details with "${prefix}help [command]"`,
+                    `Get more details with "${config.prefix}help [command]"`,
                 ],
                 { split: true },
             );
@@ -59,10 +57,12 @@ export const help: Command = {
             help.push(`*aliases*: ${command.alias.join(', ')}`);
         }
         if (command.usage) {
-            help.push(`*usage*: \`${prefix}${command.name} ${command.usage}\``);
+            help.push(`*usage*: \`${config.prefix}${command.name} ${command.usage}\``);
         }
         if (command.examples) {
-            help.push(`*examples*: ${command.examples.map((e) => `\`${prefix}${command.name} ${e}\``).join(', ')}`);
+            help.push(
+                `*examples*: ${command.examples.map((e) => `\`${config.prefix}${command.name} ${e}\``).join(', ')}`,
+            );
         }
 
         return message.channel.send(help, { split: true });

@@ -2,6 +2,7 @@ import { Message } from 'discord.js';
 import { createReadStream } from 'fs';
 
 import { FriendlyError } from '../error';
+import logger from '../logger';
 import playlist from '../playlist';
 import { Arguments, Command } from '../types';
 
@@ -28,9 +29,8 @@ const command: Command = {
 
         const dispatcher = connection.play(createReadStream(song), { type: 'webm/opus' });
 
-        dispatcher.on('error', (err) => {
-            // TODO: log error
-            // console.error(err);
+        dispatcher.on('error', (error) => {
+            logger.error({ guild, room, error }, 'encountered error when playing track');
             connection.disconnect();
         });
 

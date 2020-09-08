@@ -1,8 +1,8 @@
 import fs from 'fs-extra';
 import { difference } from 'lodash';
 
+import config from './config';
 import { Dictionary } from './types';
-import { env } from './utils';
 
 interface Song {
     file: string;
@@ -52,4 +52,4 @@ export class Manager {
     }
 }
 
-export default new Manager(env('SONGS_FILE', 'songs.json'));
+export default new Manager(config.dataFile);

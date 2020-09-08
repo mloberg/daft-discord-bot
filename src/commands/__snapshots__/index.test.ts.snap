@@ -117,6 +117,43 @@ exports[`_help returns the details for the help command 1`] = `
 }
 `;
 
+exports[`_help returns the details for the next command 1`] = `
+[MockFunction] {
+  "calls": Array [
+    Array [
+      Array [
+        "**next**: Play the next song in the playlist",
+        "*aliases*: skip",
+      ],
+      Object {
+        "split": true,
+      },
+    ],
+  ],
+  "results": Array [
+    Object {
+      "type": "return",
+      "value": Object {
+        "send": [MockFunction] {
+          "calls": Array [
+            Array [
+              Array [
+                "**next**: Play the next song in the playlist",
+                "*aliases*: skip",
+              ],
+              Object {
+                "split": true,
+              },
+            ],
+          ],
+          "results": [Circular],
+        },
+      },
+    },
+  ],
+}
+`;
+
 exports[`_help returns the details for the play command 1`] = `
 [MockFunction] {
   "calls": Array [
