@@ -47,4 +47,15 @@ describe('Manager', () => {
         expect(manager.next('foo', 'bar')).toEqual('two.mp3');
         expect(manager.next('foo', 'bar')).toEqual(null);
     });
+
+    it('returns the currently playing track', async () => {
+        await manager.addSong('one.mp3', ['foo'], 'One');
+        manager.create('foo', 'bar', ['one.mp3', 'two.mp3']);
+
+        expect(await manager.nowPlaying('foo', 'bar')).toBeNull();
+        manager.next('foo', 'bar');
+        expect(await manager.nowPlaying('foo', 'bar')).toEqual({ file: 'one.mp3', tags: ['foo'], title: 'One' });
+        manager.next('foo', 'bar');
+        expect(await manager.nowPlaying('foo', 'bar')).toBeNull();
+    });
 });
