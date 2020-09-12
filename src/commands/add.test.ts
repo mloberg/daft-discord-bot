@@ -25,7 +25,7 @@ jest.mock('../playlist');
 jest.mock('fs-extra', () => ({
     existsSync: (file: string) => {
         return 'none.mp3' === file ? false : true;
-    }
+    },
 }));
 jest.mock('child_process', () => ({
     exec: (command: string, callback: { (error: Error | null, result: { stdout: string }): void }) => {
