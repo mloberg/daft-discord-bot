@@ -48,8 +48,13 @@ export class Manager {
         return (this.playing[key] = playlist.shift() || null);
     }
 
-    nowPlaying(guild: string, room: string): string | null {
-        return this.playing[`${guild}_${room}`];
+    async nowPlaying(guild: string, room: string): Promise<Song | null> {
+        const playing = this.playing[`${guild}_${room}`];
+        if (!playing) {
+            return null;
+        }
+
+        return (await this.getSongs()).find((s) => playing === s.file) || null;
     }
 
     private async getSongs(): Promise<Song[]> {
