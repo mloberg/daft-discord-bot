@@ -10,20 +10,30 @@ const mocks = {
     playlist: mocked(Playlist),
 };
 
-jest.mock('discord.js', () => {
-    return {
-        Client: jest.fn(),
-        Guild: jest.fn(),
-        TextChannel: jest.fn(),
-        Message: jest.fn().mockImplementation(() => {
-            return {
-                react: mocks.react,
-            };
-        }),
-    };
-});
+jest.mock('discord.js', () => ({
+    Client: jest.fn(),
+    Guild: jest.fn(),
+    TextChannel: jest.fn(),
+    Message: jest.fn().mockImplementation(() => {
+        return {
+            react: mocks.react,
+        };
+    }),
+}));
 
 jest.mock('../playlist');
+jest.mock('fs-extra', () => ({
+    existsSync: (file: string) => {
+        return 'none.mp3' === file ? false : true;
+    }
+}));
+jest.mock('child_process', () => ({
+    exec: (command: string, callback: { (error: Error | null, result: { stdout: string }): void }) => {
+        command.includes('notitle.mp3')
+            ? callback(null, { stdout: '{}' })
+            : callback(null, { stdout: '{"format": {"tags": {"title": "Testing"}}}' });
+    },
+}));
 
 describe('_add configuration', () => {
     it('should have basic command infomation', () => {
@@ -51,11 +61,20 @@ describe('_add', () => {
         message = new Message(client, {}, channel);
     });
 
-    it('adds a file to the manager', async () => {
-        await command.run(message, { _: [__filename, 'foo', 'bar'] });
+    it('adds a file to the manager with a title', async () => {
+        await command.run(message, { _: ['test.mp3', 'foo', 'bar'] });
 
         expect(mocks.playlist.addSong).toHaveBeenCalledTimes(1);
-        expect(mocks.playlist.addSong).toHaveBeenCalledWith(__filename, ['foo', 'bar']);
+        expect(mocks.playlist.addSong).toHaveBeenCalledWith('test.mp3', ['foo', 'bar'], 'Testing');
+
+        expect(mocks.react).toBeCalledWith('🎵');
+    });
+
+    it('adds a file to the manager without a title', async () => {
+        await command.run(message, { _: ['notitle.mp3', 'foo', 'bar'] });
+
+        expect(mocks.playlist.addSong).toHaveBeenCalledTimes(1);
+        expect(mocks.playlist.addSong).toHaveBeenCalledWith('notitle.mp3', ['foo', 'bar'], null);
 
         expect(mocks.react).toBeCalledWith('🎵');
     });
@@ -72,7 +91,7 @@ describe('_add', () => {
 
     it('will throw an error if no tags given', async () => {
         try {
-            await command.run(message, { _: [__filename] });
+            await command.run(message, { _: ['test.mp3'] });
             fail('expected error to be thrown');
         } catch (err) {
             expect(err).toBeInstanceOf(FriendlyError);
@@ -82,7 +101,7 @@ describe('_add', () => {
 
     it('will throw an error if file does not exist', async () => {
         try {
-            await command.run(message, { _: ['foo', 'bar'] });
+            await command.run(message, { _: ['none.mp3', 'foo', 'bar'] });
             fail('expected error to be thrown');
         } catch (err) {
             expect(err).toBeInstanceOf(FriendlyError);

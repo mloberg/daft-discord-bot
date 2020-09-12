@@ -1,9 +1,13 @@
+import { exec } from 'child_process';
 import { Message } from 'discord.js';
 import fs from 'fs-extra';
+import { promisify } from 'util';
 
 import { FriendlyError } from '../error';
 import playlist from '../playlist';
 import { Arguments, Command } from '../types';
+
+const shell = promisify(exec);
 
 const command: Command = {
     name: 'add',
@@ -22,8 +26,10 @@ const command: Command = {
             throw new FriendlyError('Could not find file. I only support local files for now.');
         }
 
-        // TODO: verify webm or mp3 and update to play mp3
-        await playlist.addSong(file, tags);
+        const { stdout } = await shell(`ffprobe -v quiet -print_format json -show_format -show_streams ${file}`);
+        const title = JSON.parse(stdout).format?.tags?.title || null;
+
+        await playlist.addSong(file, tags, title);
 
         return message.react('🎵');
     },

@@ -5,18 +5,20 @@ import config from './config';
 import { Dictionary } from './types';
 
 interface Song {
+    title?: string;
     file: string;
     tags: string[];
 }
 
 export class Manager {
+    private playing: Dictionary<string | null> = {};
     private playlists: Dictionary<string[]> = {};
 
     constructor(private readonly file: string) {}
 
-    async addSong(file: string, tags: string[]): Promise<void> {
+    async addSong(file: string, tags: string[], title?: string): Promise<void> {
         const songs = await this.getSongs();
-        songs.push({ file, tags });
+        songs.push({ title, file, tags });
         await this.saveSongs(songs);
     }
 
@@ -27,7 +29,9 @@ export class Manager {
     }
 
     clear(guild: string, room: string): void {
-        delete this.playlists[`${guild}_${room}`];
+        const key = `${guild}_${room}`;
+        delete this.playlists[key];
+        delete this.playing[key];
     }
 
     create(guild: string, room: string, songs: string[]): void {
@@ -35,12 +39,17 @@ export class Manager {
     }
 
     next(guild: string, room: string): string | null {
-        const playlist = this.playlists[`${guild}_${room}`];
+        const key = `${guild}_${room}`;
+        const playlist = this.playlists[key];
         if (!playlist) {
             return null;
         }
 
-        return playlist.shift() || null;
+        return (this.playing[key] = playlist.shift() || null);
+    }
+
+    nowPlaying(guild: string, room: string): string | null {
+        return this.playing[`${guild}_${room}`];
     }
 
     private async getSongs(): Promise<Song[]> {

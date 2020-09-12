@@ -47,4 +47,12 @@ describe('Manager', () => {
         expect(manager.next('foo', 'bar')).toEqual('two.mp3');
         expect(manager.next('foo', 'bar')).toEqual(null);
     });
+
+    it('returns the currently playing track', () => {
+        manager.create('foo', 'bar', ['one.mp3', 'two.mp3']);
+
+        expect(manager.nowPlaying('foo', 'bar')).toBeNull();
+        manager.next('foo', 'bar');
+        expect(manager.nowPlaying('foo', 'bar')).toEqual('one.mp3');
+    });
 });
