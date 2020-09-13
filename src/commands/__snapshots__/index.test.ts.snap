@@ -117,13 +117,12 @@ exports[`_help returns the details for the help command 1`] = `
 }
 `;
 
-exports[`_help returns the details for the next command 1`] = `
+exports[`_help returns the details for the pause command 1`] = `
 [MockFunction] {
   "calls": Array [
     Array [
       Array [
-        "**next**: Play the next song in the playlist",
-        "*aliases*: skip",
+        "**pause**: Pause the playlist",
       ],
       Object {
         "split": true,
@@ -138,8 +137,7 @@ exports[`_help returns the details for the next command 1`] = `
           "calls": Array [
             Array [
               Array [
-                "**next**: Play the next song in the playlist",
-                "*aliases*: skip",
+                "**pause**: Pause the playlist",
               ],
               Object {
                 "split": true,
@@ -161,7 +159,7 @@ exports[`_help returns the details for the play command 1`] = `
       Array [
         "**play**: Start a playlist",
         "*aliases*: start",
-        "*usage*: \`_play [...TAGS]\`",
+        "*usage*: \`_play [...TAGS] [--volume|-v VOLUME]\`",
       ],
       Object {
         "split": true,
@@ -178,7 +176,7 @@ exports[`_help returns the details for the play command 1`] = `
               Array [
                 "**play**: Start a playlist",
                 "*aliases*: start",
-                "*usage*: \`_play [...TAGS]\`",
+                "*usage*: \`_play [...TAGS] [--volume|-v VOLUME]\`",
               ],
               Object {
                 "split": true,

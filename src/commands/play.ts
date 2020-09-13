@@ -10,7 +10,7 @@ const command: Command = {
     name: 'play',
     description: 'Start a playlist',
     alias: ['start'],
-    usage: '[...TAGS]',
+    usage: '[...TAGS] [--volume|-v VOLUME]',
     async run(message: Message, args: Arguments) {
         if (!message.member || !message.member.voice.channel) {
             throw new FriendlyError('You are not in a voice channel');

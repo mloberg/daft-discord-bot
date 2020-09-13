@@ -17,8 +17,8 @@ const command: Command = {
             return;
         }
 
-        const volume = Math.min(Number(args._[0]) || 100, 100);
-        connection.dispatcher.setVolume(volume / 100);
+        const volume = Math.min(Number(args._[0]) || 100, 100) / 100;
+        connection.dispatcher.setVolume(volume);
 
         return message.react('🎶');
     },

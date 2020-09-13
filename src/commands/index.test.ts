@@ -54,7 +54,7 @@ describe('_help', () => {
         expect(mocks.send).toMatchSnapshot();
     });
 
-    it.each(['help', 'add', 'play', 'next', 'volume'])('returns the details for the %s command', async (cmd) => {
+    it.each(['help', 'add', 'play', 'pause', 'volume'])('returns the details for the %s command', async (cmd) => {
         const reply = await help.run(message, { _: [cmd] });
 
         expect(reply).toEqual(message.channel);
