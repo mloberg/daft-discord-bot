@@ -23,6 +23,9 @@ const command: Command = {
         playlist.clear(guild, room);
 
         const songs = shuffle(await playlist.findSongs(tags));
+        if (0 === songs.length) {
+            throw new FriendlyError(`No songs matching "${tags.join(', ')}" were found`);
+        }
         playlist.create(guild, room, songs);
 
         await next.run(message, args);

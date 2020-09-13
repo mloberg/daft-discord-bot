@@ -83,6 +83,19 @@ describe('_play', () => {
         expect(mocks.next.run).toHaveBeenCalledWith(message, { _: [] });
     });
 
+    it('will throw an error if no songs were found', async () => {
+        const message = new Message(client, {}, channel);
+        mocks.playlist.findSongs.mockReturnValue(new Promise((resolve) => resolve([])));
+
+        try {
+            await command.run(message, { _: ['foo'] });
+            fail('expected error to be thrown');
+        } catch (err) {
+            expect(err).toBeInstanceOf(FriendlyError);
+            expect(err.message).toEqual('No songs matching "foo" were found');
+        }
+    });
+
     it('will throw an error if not in a voice channel', async () => {
         (mocked(Message) as jest.Mock).mockImplementationOnce(() => {
             return { member: { voice: { channe: null } } };
