@@ -13,5 +13,6 @@ module.exports = {
     rules: {
         'simple-import-sort/sort': 'error',
         'sort-imports': 'off',
+        'no-console': 'error',
     },
 };
