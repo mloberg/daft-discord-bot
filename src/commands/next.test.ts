@@ -56,6 +56,7 @@ describe('_next configuration', () => {
     it('should have basic command infomation', () => {
         expect(command.name).toEqual('next');
         expect(command.description).toEqual('Play the next song in the playlist');
+        expect(command.usage).toEqual('[--volume|-v VOLUME]');
     });
 
     it('should have an alias', () => {
@@ -90,7 +91,7 @@ describe('_next', () => {
 
         expect(stream).toBeInstanceOf(ReadStream);
         expect((stream as ReadStream).path).toEqual(__filename);
-        expect(opts).toEqual({ type: 'webm/opus' });
+        expect(opts).toEqual({ type: 'webm/opus', volume: 1 });
 
         const [error, errorFunc] = mocks.dispatcherEvent.mock.calls[0];
         expect(error).toEqual('error');
@@ -111,6 +112,19 @@ describe('_next', () => {
         expect(mocks.playlist.next).toHaveBeenCalledTimes(2);
 
         expect(mocks.react).toBeCalledWith('🎶');
+    });
+
+    it('will set volume of next song', async () => {
+        const message = new Message(client, {}, channel);
+        mocks.playlist.next.mockReturnValue(__filename);
+
+        await command.run(message, { _: [], volume: '50' });
+
+        const [stream, opts] = mocks.dispatcher.mock.calls[0];
+
+        expect(stream).toBeInstanceOf(ReadStream);
+        expect((stream as ReadStream).path).toEqual(__filename);
+        expect(opts).toEqual({ type: 'webm/opus', volume: 0.5 });
     });
 
     it('will disconnect if no more songs in playlist', async () => {

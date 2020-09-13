@@ -10,6 +10,7 @@ const command: Command = {
     name: 'next',
     description: 'Play the next song in the playlist',
     alias: ['skip'],
+    usage: '[--volume|-v VOLUME]',
     async run(message: Message, args: Arguments) {
         if (!message.member || !message.member.voice.channel) {
             throw new FriendlyError('You are not in a voice channel');
@@ -27,7 +28,8 @@ const command: Command = {
             return;
         }
 
-        const dispatcher = connection.play(createReadStream(song), { type: 'webm/opus' });
+        const volume = Math.min(Number(args.volume || args.v) || 100, 100) / 100;
+        const dispatcher = connection.play(createReadStream(song), { type: 'webm/opus', volume });
 
         dispatcher.on('error', (err) => {
             logger.error({ guild, room, type: err.name, stack: err.stack }, err.message);

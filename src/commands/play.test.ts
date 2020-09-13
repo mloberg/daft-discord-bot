@@ -40,7 +40,7 @@ describe('_play configuration', () => {
     it('should have basic command infomation', () => {
         expect(command.name).toEqual('play');
         expect(command.description).toEqual('Start a playlist');
-        expect(command.usage).toEqual('[...TAGS]');
+        expect(command.usage).toEqual('[...TAGS] [--volume|-v VOLUME]');
     });
 
     it('should have an alias', () => {
