@@ -28,6 +28,19 @@ export class Manager {
         return songs.filter((s) => difference(tags, s.tags).length === 0).map((s) => s.file);
     }
 
+    async updateSong(file: string, tags: string[], title?: string): Promise<void> {
+        const songs = await this.getSongs();
+        const index = songs.findIndex((s) => file === s.file);
+        if (-1 === index) {
+            throw new Error(`Could not find song for "${file}"`);
+        }
+
+        songs[index].title = title;
+        songs[index].tags = tags;
+
+        await this.saveSongs(songs);
+    }
+
     clear(guild: string, room: string): void {
         const key = `${guild}_${room}`;
         delete this.playlists[key];
@@ -57,7 +70,7 @@ export class Manager {
         return (await this.getSongs()).find((s) => playing === s.file) || null;
     }
 
-    private async getSongs(): Promise<Song[]> {
+    async getSongs(): Promise<Song[]> {
         return fs.existsSync(this.file) ? await fs.readJSON(this.file) : [];
     }
 

@@ -29,6 +29,26 @@ describe('Manager', () => {
         expect(await manager.findSongs(['testing'])).toEqual([]);
     });
 
+    it('updates an existing song', async () => {
+        await manager.addSong('test.mp3', ['foo', 'bar']);
+        await manager.addSong('foo.mp3', ['foo']);
+
+        await manager.updateSong('test.mp3', ['test'], 'Testing');
+        expect(await (await manager.getSongs()).find((s) => 'test.mp3' === s.file)).toEqual({
+            file: 'test.mp3',
+            tags: ['test'],
+            title: 'Testing',
+        });
+    });
+
+    it('throws an error when updating a song that does not exist', async () => {
+        try {
+            await manager.updateSong('test.mp3', ['test'], 'Testing');
+        } catch (err) {
+            expect(err.message).toEqual('Could not find song for "test.mp3"');
+        }
+    });
+
     it('clears a playlist', () => {
         manager.create('foo', 'bar', ['test.mp3']);
         manager.clear('foo', 'bar');

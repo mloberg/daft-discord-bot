@@ -11,6 +11,7 @@ import play from './play';
 import playing from './playing';
 import resume from './resume';
 import stop from './stop';
+import tag from './tag';
 import volume from './volume';
 
 export class Commands {
@@ -81,6 +82,7 @@ commands.register(play);
 commands.register(playing);
 commands.register(resume);
 commands.register(stop);
+commands.register(tag);
 commands.register(volume);
 
 export default commands;
