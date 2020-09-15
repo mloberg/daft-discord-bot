@@ -5,3 +5,5 @@
 /keyv.json
 /songs.json
 /music/
+/prisma/.env
+/prisma/*.db

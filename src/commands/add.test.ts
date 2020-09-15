@@ -1,13 +1,15 @@
 import { Client, Guild, Message, TextChannel } from 'discord.js';
 import { mocked } from 'ts-jest/utils';
 
+import db from '../db';
 import { FriendlyError } from '../error';
-import Playlist from '../playlist';
+import logger from '../logger';
 import command from './add';
 
 const mocks = {
     react: jest.fn(),
-    playlist: mocked(Playlist),
+    db: mocked(db, true),
+    logger: mocked(logger),
 };
 
 jest.mock('discord.js', () => ({
@@ -21,7 +23,8 @@ jest.mock('discord.js', () => ({
     }),
 }));
 
-jest.mock('../playlist');
+jest.mock('../db');
+jest.mock('../logger');
 jest.mock('fs-extra', () => ({
     existsSync: (file: string) => {
         return 'none.mp3' === file ? false : true;
@@ -53,7 +56,8 @@ describe('_add', () => {
     beforeEach(() => {
         mocks.react.mockClear();
         mocks.react.mockReturnThis();
-        mocks.playlist.addSong.mockClear();
+        mocks.db.song.create.mockClear();
+        mocks.logger.error.mockClear();
 
         const client = new Client();
         const guild = new Guild(client, {});
@@ -63,20 +67,34 @@ describe('_add', () => {
 
     it('adds a file to the manager with a title', async () => {
         await command.run(message, { _: ['test.mp3', 'foo', 'bar'] });
-
-        expect(mocks.playlist.addSong).toHaveBeenCalledTimes(1);
-        expect(mocks.playlist.addSong).toHaveBeenCalledWith('test.mp3', ['foo', 'bar'], 'Testing');
-
         expect(mocks.react).toBeCalledWith('🎵');
+
+        expect(mocks.db.song.create).toHaveBeenCalledTimes(1);
+        expect(mocks.db.song.create).toHaveBeenCalledWith({
+            data: {
+                title: 'Testing',
+                location: 'test.mp3',
+                tags: {
+                    create: [{ tag: 'foo' }, { tag: 'bar' }],
+                },
+            },
+        });
     });
 
     it('adds a file to the manager without a title', async () => {
         await command.run(message, { _: ['notitle.mp3', 'foo', 'bar'] });
-
-        expect(mocks.playlist.addSong).toHaveBeenCalledTimes(1);
-        expect(mocks.playlist.addSong).toHaveBeenCalledWith('notitle.mp3', ['foo', 'bar'], null);
-
         expect(mocks.react).toBeCalledWith('🎵');
+
+        expect(mocks.db.song.create).toHaveBeenCalledTimes(1);
+        expect(mocks.db.song.create).toHaveBeenCalledWith({
+            data: {
+                title: null,
+                location: 'notitle.mp3',
+                tags: {
+                    create: [{ tag: 'foo' }, { tag: 'bar' }],
+                },
+            },
+        });
     });
 
     it('will throw an error if no file given', async () => {
@@ -106,6 +124,21 @@ describe('_add', () => {
         } catch (err) {
             expect(err).toBeInstanceOf(FriendlyError);
             expect(err.message).toEqual('Could not find file. I only support local files for now.');
+        }
+    });
+
+    it('will throw an error if cannot be added to database', async () => {
+        const dbErr = new Error('duplicate');
+        mocks.db.song.create.mockRejectedValue(dbErr);
+
+        try {
+            await command.run(message, { _: ['test.mp3', 'foo', 'bar'] });
+            fail('expected error to be thrown');
+        } catch (err) {
+            expect(mocks.logger.error).toHaveBeenCalledTimes(1);
+            expect(mocks.logger.error).toHaveBeenCalledWith(dbErr);
+            expect(err).toBeInstanceOf(FriendlyError);
+            expect(err.message).toEqual('I was unable to add that song. Does it exist already?');
         }
     });
 });

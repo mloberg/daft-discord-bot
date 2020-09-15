@@ -49,34 +49,18 @@ describe('env.DEBUG', () => {
         const { error, value } = schema.validate({});
 
         expect(error).toBeFalsy();
-        expect(value.DEBUG).toEqual(false);
+        expect(value.APP_DEBUG).toEqual(false);
     });
 
     it('allows valid values', () => {
-        expect(schema.validate({ DEBUG: 'true' }).error).toBeFalsy();
-        expect(schema.validate({ DEBUG: 'false' }).error).toBeFalsy();
-        expect(schema.validate({ DEBUG: 'TRUE' }).error).toBeFalsy();
-        expect(schema.validate({ DEBUG: 'FALSE' }).error).toBeFalsy();
+        expect(schema.validate({ APP_DEBUG: 'true' }).error).toBeFalsy();
+        expect(schema.validate({ APP_DEBUG: 'false' }).error).toBeFalsy();
+        expect(schema.validate({ APP_DEBUG: 'TRUE' }).error).toBeFalsy();
+        expect(schema.validate({ APP_DEBUG: 'FALSE' }).error).toBeFalsy();
     });
 
     it('returns an error on invalid level', () => {
-        expect(schema.validate({ DEBUG: 'foo' }).error?.message).toEqual('"DEBUG" must be a boolean');
-    });
-});
-
-describe('env.SONG_FILE', () => {
-    it('defaults to songs.json', () => {
-        const { error, value } = schema.validate({});
-
-        expect(error).toBeFalsy();
-        expect(value.SONG_FILE).toEqual('songs.json');
-    });
-
-    it('must end with .json', () => {
-        expect(schema.validate({ SONG_FILE: 'foo.json' }).error).toBeFalsy();
-        expect(schema.validate({ SONG_FILE: 'songs' }).error?.message).toEqual(
-            '"SONG_FILE" with value "songs" fails to match the required pattern: /\\.json$/',
-        );
+        expect(schema.validate({ APP_DEBUG: 'foo' }).error?.message).toEqual('"APP_DEBUG" must be a boolean');
     });
 });
 

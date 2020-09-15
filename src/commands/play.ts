@@ -1,6 +1,7 @@
+import { join } from '@prisma/client';
 import { Message } from 'discord.js';
-import { shuffle } from 'lodash';
 
+import db from '../db';
 import { FriendlyError } from '../error';
 import playlist from '../playlist';
 import { Arguments, Command } from '../types';
@@ -20,15 +21,25 @@ const command: Command = {
         const room = message.member.voice.channel.name;
         const tags = args._.map((t) => t.toString());
 
-        playlist.clear(guild, room);
-
-        const songs = shuffle(await playlist.findSongs(tags));
-        if (0 === songs.length) {
+        const results: { location: string }[] = await db.$queryRaw`SELECT S.location
+        FROM songs S
+        JOIN tags T ON T.song_id = S.id
+        WHERE T.tag IN (${join(tags)})
+        GROUP BY S.id
+        HAVING COUNT(T.id) = ${tags.length}
+        ORDER BY RANDOM()`;
+        if (0 === results.length) {
             throw new FriendlyError(`No songs matching "${tags.join(', ')}" were found`);
         }
-        playlist.create(guild, room, songs);
 
-        await next.run(message, args);
+        playlist.clear(guild, room);
+        playlist.create(
+            guild,
+            room,
+            results.map((r) => r.location),
+        );
+
+        await next.run(message, { _: [], volume: args.v || args.volume });
     },
 };
 

@@ -1,6 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`Manager adds a song 1`] = `
-"[{\\"file\\":\\"test.mp3\\",\\"tags\\":[\\"foo\\",\\"bar\\"]}]
-"
-`;

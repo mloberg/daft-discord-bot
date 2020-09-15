@@ -1,5 +1,6 @@
 import { Message } from 'discord.js';
 
+import db from '../db';
 import { FriendlyError } from '../error';
 import playlist from '../playlist';
 import { Command } from '../types';
@@ -16,12 +17,20 @@ const command: Command = {
         const guild = message.member.voice.channel.guild.name;
         const room = message.member.voice.channel.name;
 
-        const song = await playlist.nowPlaying(guild, room);
-        if (!song) {
+        const playing = playlist.nowPlaying(guild, room);
+        if (!playing) {
             throw new FriendlyError('Nothing is currently playing');
         }
 
-        return message.reply(`${song.title ?? song.file} (*${song.tags.join('*, *')}*)`, { split: true });
+        const song = await db.song.findOne({
+            where: { location: playing },
+            include: { tags: true },
+        });
+        if (!song) {
+            throw new FriendlyError('I was unable to find that song');
+        }
+
+        return message.reply(`${song.title} - ${song.location} (*${song.tags.map((t) => t.tag).join('*, *')}*)`);
     },
 };
 
