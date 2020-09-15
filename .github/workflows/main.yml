@@ -27,11 +27,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
       - run: npm ci
+      - name: Build
+        run: npm run build
       - name: Lint
         run: npm run lint
       - name: Test
         run: npm run test
-  push:
+  publish:
     needs: test
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
