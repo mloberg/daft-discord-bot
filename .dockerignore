@@ -1,5 +1,6 @@
 *
 !dist
 !src
+!prisma
 !package*.json
 !tsconfig.json

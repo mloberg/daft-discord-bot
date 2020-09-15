@@ -14,6 +14,6 @@ RUN apk del .build-deps
 COPY . .
 RUN npm run build \
     && npm prune --production \
-    && rm -rf src tsconfig.json
+    && rm -rf src prisma tsconfig.json
 
 CMD [ "npm", "start", "--silent" ]
