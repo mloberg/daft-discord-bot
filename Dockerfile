@@ -12,7 +12,8 @@ RUN npm ci
 RUN apk del .build-deps
 
 COPY . .
-RUN npm run build \
+RUN npx prisma generate \
+    && npm run build \
     && npm prune --production \
     && rm -rf src prisma tsconfig.json
 
