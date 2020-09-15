@@ -1,14 +1,14 @@
 import { Client, Guild, Message, TextChannel } from 'discord.js';
 import { mocked } from 'ts-jest/utils';
 
+import db from '../db';
 import { FriendlyError } from '../error';
-import Playlist from '../playlist';
+import playlist from '../playlist';
 import Next from './next';
 import command from './play';
 
 const mocks = {
     next: mocked(Next),
-    playlist: mocked(Playlist),
 };
 
 jest.mock('discord.js', () => {
@@ -33,7 +33,6 @@ jest.mock('discord.js', () => {
     };
 });
 
-jest.mock('../playlist');
 jest.mock('./next');
 
 describe('_play configuration', () => {
@@ -53,31 +52,67 @@ describe('_play', () => {
     const guild = new Guild(client, {});
     const channel = new TextChannel(guild, {});
 
-    beforeEach(() => {
-        mocks.playlist.clear.mockClear();
-        mocks.playlist.findSongs.mockClear();
-        mocks.playlist.create.mockClear();
+    beforeEach(async () => {
         mocks.next.run.mockClear();
+
+        await db.song.create({
+            data: {
+                title: 'Foo',
+                location: 'foo.mp3',
+                tags: {
+                    create: [{ tag: 'foo' }],
+                },
+            },
+        });
+        await db.song.create({
+            data: {
+                title: 'Bar',
+                location: 'bar.mp3',
+                tags: {
+                    create: [{ tag: 'bar' }],
+                },
+            },
+        });
+        await db.song.create({
+            data: {
+                title: 'Test',
+                location: 'test.mp3',
+                tags: {
+                    create: [{ tag: 'foo' }, { tag: 'bar' }],
+                },
+            },
+        });
+    });
+
+    afterEach(async () => {
+        playlist.clear('testing', 'daft-test');
+        await db.$executeRaw`DELETE FROM tags`;
+        await db.$executeRaw`DELETE FROM songs`;
+        await db.$disconnect();
     });
 
     it('starts a new playlist', async () => {
         const message = new Message(client, {}, channel);
-        mocks.playlist.findSongs.mockReturnValue(
-            new Promise((resolve) => {
-                resolve(['foo.mp3', 'bar.mp3']);
-            }),
-        );
 
-        await command.run(message, { _: [] });
+        await command.run(message, { _: ['foo'] });
 
-        expect(mocks.playlist.clear).toHaveBeenCalledTimes(1);
-        expect(mocks.playlist.clear).toHaveBeenCalledWith('testing', 'daft-test');
-
-        expect(mocks.playlist.create).toHaveBeenCalledTimes(1);
-        const songs = mocks.playlist.create.mock.calls[0][2];
+        const songs = playlist.queue('testing', 'daft-test');
         expect(songs).toHaveLength(2);
         expect(songs).toContain('foo.mp3');
-        expect(songs).toContain('bar.mp3');
+        expect(songs).toContain('test.mp3');
+
+        expect(mocks.next.run).toHaveBeenCalledTimes(1);
+        expect(mocks.next.run).toHaveBeenCalledWith(message, { _: [] });
+    });
+
+    it('will only play songs with all tags', async () => {
+        const message = new Message(client, {}, channel);
+
+        await command.run(message, { _: ['foo', 'bar'] });
+
+        const songs = playlist.queue('testing', 'daft-test');
+        expect(songs).toHaveLength(1);
+        expect(songs).toContain('test.mp3');
 
         expect(mocks.next.run).toHaveBeenCalledTimes(1);
         expect(mocks.next.run).toHaveBeenCalledWith(message, { _: [] });
@@ -85,14 +120,13 @@ describe('_play', () => {
 
     it('will throw an error if no songs were found', async () => {
         const message = new Message(client, {}, channel);
-        mocks.playlist.findSongs.mockReturnValue(new Promise((resolve) => resolve([])));
 
         try {
-            await command.run(message, { _: ['foo'] });
+            await command.run(message, { _: ['none'] });
             fail('expected error to be thrown');
         } catch (err) {
             expect(err).toBeInstanceOf(FriendlyError);
-            expect(err.message).toEqual('No songs matching "foo" were found');
+            expect(err.message).toEqual('No songs matching "none" were found');
         }
     });
 

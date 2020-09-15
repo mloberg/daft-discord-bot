@@ -1,6 +1,6 @@
 import { Message } from 'discord.js';
-import { uniq } from 'lodash';
 
+import db from '../db';
 import { FriendlyError } from '../error';
 import playlist from '../playlist';
 import { Arguments, Command } from '../types';
@@ -33,16 +33,34 @@ const command: Command = {
         const guild = message.member.voice.channel.guild.name;
         const room = message.member.voice.channel.name;
 
-        const song = await playlist.nowPlaying(guild, room);
-        if (!song) {
+        const playing = playlist.nowPlaying(guild, room);
+        if (!playing) {
             throw new FriendlyError('Nothing is currently playing');
         }
 
+        const song = await db.song.findOne({
+            where: { location: playing },
+            include: { tags: true },
+        });
+        if (!song) {
+            throw new FriendlyError('I was unable to find that song');
+        }
         const add = argsToArray(args.add, args.a);
         const remove = argsToArray(args.remove, args.r);
-        const tags = song.tags.filter((t) => !remove.includes(t)).concat(...add);
 
-        await playlist.updateSong(song.file, uniq(tags), song.title);
+        await db.song.update({
+            where: { id: song.id },
+            data: {
+                tags: {
+                    deleteMany: remove.map((tag) => ({ songId: song.id, tag })),
+                    upsert: add.map((tag) => ({
+                        create: { tag },
+                        update: { tag },
+                        where: { song_tag: { songId: song.id, tag } },
+                    })),
+                },
+            },
+        });
 
         return message.react('🎵');
     },

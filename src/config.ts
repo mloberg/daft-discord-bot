@@ -9,11 +9,7 @@ export const schema = joi
             .valid('fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent')
             .lowercase()
             .default('info'),
-        DEBUG: joi.boolean().default(false),
-        SONG_FILE: joi
-            .string()
-            .regex(/\.json$/)
-            .default('songs.json'),
+        APP_DEBUG: joi.boolean().default(false),
         BOT_PREFIX: joi.string().invalid('@').default('_'),
         BOT_TOKEN: joi.string().presence(process.env.NODE_ENV === 'test' ? 'optional' : 'required'),
     })
@@ -26,10 +22,10 @@ if (error) {
 }
 
 export default {
+    isTest: env.NODE_ENV === 'test',
     env: env.NODE_ENV as 'development' | 'test' | 'production',
     logLevel: env.LOG_LEVEL as LevelWithSilent,
-    debug: env.DEBUG as boolean,
-    dataFile: env.SONG_FILE as string,
+    debug: env.APP_DEBUG as boolean,
     prefix: env.BOT_PREFIX as string,
     token: env.BOT_TOKEN as string,
 };

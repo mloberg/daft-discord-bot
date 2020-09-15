@@ -1,0 +1,31 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "sqlite"
+  url = "***"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Song {
+  id        Int      @default(autoincrement()) @id
+  location  String   @unique
+  title     String?
+  createdAt DateTime @default(now())
+  tags      Tag[]
+
+  @@map("songs")
+}
+
+model Tag {
+  id     Int    @default(autoincrement()) @id
+  tag    String
+  song   Song   @relation(fields: [songId], references: [id])
+  songId Int    @map("song_id")
+
+  @@map("tags")
+  @@unique([tag, songId], name: "song_tag")
+}

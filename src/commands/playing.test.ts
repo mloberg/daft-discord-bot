@@ -1,13 +1,13 @@
 import { Client, Guild, Message, TextChannel } from 'discord.js';
 import { mocked } from 'ts-jest/utils';
 
+import db from '../db';
 import { FriendlyError } from '../error';
-import Playlist from '../playlist';
+import playlist from '../playlist';
 import command from './playing';
 
 const mocks = {
     reply: jest.fn(),
-    playlist: mocked(Playlist),
 };
 
 jest.mock('discord.js', () => ({
@@ -28,8 +28,6 @@ jest.mock('discord.js', () => ({
         reply: mocks.reply,
     })),
 }));
-
-jest.mock('../playlist');
 
 describe('_playing configuration', () => {
     it('should have basic command infomation', () => {
@@ -53,44 +51,54 @@ describe('_playing', () => {
     beforeEach(() => {
         mocks.reply.mockClear();
         mocks.reply.mockReturnThis();
-        mocks.playlist.nowPlaying.mockClear();
 
         message = new Message(client, {}, channel);
     });
 
-    it('returns the title and tags of current song', async () => {
-        mocks.playlist.nowPlaying.mockReturnValue(
-            new Promise((resolve) => resolve({ title: 'Testing', file: 'test.mp3', tags: ['foo', 'bar'] })),
-        );
-        await command.run(message, { _: [] });
-
-        expect(mocks.playlist.nowPlaying).toHaveBeenCalledTimes(1);
-        expect(mocks.playlist.nowPlaying).toHaveBeenCalledWith('testing', 'daft-test');
-
-        expect(mocks.reply).toBeCalledWith('Testing (*foo*, *bar*)', { split: true });
+    afterEach(async () => {
+        playlist.clear('testing', 'daft-test');
+        await db.$executeRaw`DELETE FROM tags`;
+        await db.$executeRaw`DELETE FROM songs`;
+        await db.$disconnect();
     });
 
-    it('returns the filename if no title is available', async () => {
-        mocks.playlist.nowPlaying.mockReturnValue(
-            new Promise((resolve) => resolve({ file: 'test.mp3', tags: ['foo', 'bar'] })),
-        );
+    it('returns the title and tags of current song', async () => {
+        await db.song.create({
+            data: {
+                title: 'Testing',
+                location: 'test.mp3',
+                tags: {
+                    create: [{ tag: 'foo' }, { tag: 'bar' }],
+                },
+            },
+        });
+        playlist.create('testing', 'daft-test', ['test.mp3']);
+        playlist.next('testing', 'daft-test');
+
         await command.run(message, { _: [] });
-
-        expect(mocks.playlist.nowPlaying).toHaveBeenCalledTimes(1);
-        expect(mocks.playlist.nowPlaying).toHaveBeenCalledWith('testing', 'daft-test');
-
-        expect(mocks.reply).toBeCalledWith('test.mp3 (*foo*, *bar*)', { split: true });
+        expect(mocks.reply).toBeCalledWith('Testing - test.mp3 (*foo*, *bar*)');
     });
 
     it('throws an error if no song is playing', async () => {
-        mocks.playlist.nowPlaying.mockReturnValue(new Promise((resolve) => resolve(null)));
-
         try {
             await command.run(message, { _: [] });
             fail('expected error to be thrown');
         } catch (err) {
             expect(err).toBeInstanceOf(FriendlyError);
             expect(err.message).toEqual('Nothing is currently playing');
+        }
+    });
+
+    it('throws an error if no song is found in the database', async () => {
+        playlist.create('testing', 'daft-test', ['test.mp3']);
+        playlist.next('testing', 'daft-test');
+
+        try {
+            await command.run(message, { _: [] });
+            fail('expected error to be thrown');
+        } catch (err) {
+            expect(err).toBeInstanceOf(FriendlyError);
+            expect(err.message).toEqual('I was unable to find that song');
         }
     });
 
