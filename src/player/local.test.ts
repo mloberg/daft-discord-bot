@@ -2,6 +2,7 @@ import { Client, ClientVoiceManager, Guild, VoiceChannel, VoiceConnection } from
 import fs from 'fs';
 import { mocked } from 'ts-jest/utils';
 
+import logger from '../logger';
 import LocalFile from './local';
 
 const mockPlay = jest.fn();
@@ -24,6 +25,7 @@ jest.mock('child_process', () => ({
             : callback(null, { stdout: '{"format": {"tags": {"title": "Testing"}}}' });
     },
 }));
+jest.mock('../logger');
 
 describe('LocalFile Player', () => {
     const player = new LocalFile();
@@ -70,7 +72,13 @@ describe('LocalFile Player', () => {
 
     it('fetches the song title with ffprobe', async () => {
         expect(await player.getTitle('test.mp3')).toEqual('Testing');
+        expect(mocked(logger).debug).toHaveBeenCalledWith({
+            process: 'ffprobe',
+            input: 'test.mp3',
+            stdout: '{"format": {"tags": {"title": "Testing"}}}',
+        });
         expect(await player.getTitle('notitle.mp3')).toEqual(null);
+        expect(mocked(logger).debug).toHaveBeenCalledWith({ process: 'ffprobe', input: 'notitle.mp3', stdout: '{}' });
     });
 
     it('supports local files', () => {
