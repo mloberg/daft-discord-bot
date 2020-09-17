@@ -4,12 +4,14 @@ import { mocked } from 'ts-jest/utils';
 import db from '../db';
 import { FriendlyError } from '../error';
 import logger from '../logger';
+import player from '../player';
 import command from './add';
 
 const mocks = {
     react: jest.fn(),
     db: mocked(db, true),
     logger: mocked(logger),
+    player: mocked(player),
 };
 
 jest.mock('discord.js', () => ({
@@ -25,18 +27,7 @@ jest.mock('discord.js', () => ({
 
 jest.mock('../db');
 jest.mock('../logger');
-jest.mock('fs-extra', () => ({
-    existsSync: (file: string) => {
-        return 'none.mp3' === file ? false : true;
-    },
-}));
-jest.mock('child_process', () => ({
-    exec: (command: string, callback: { (error: Error | null, result: { stdout: string }): void }) => {
-        command.includes('notitle.mp3')
-            ? callback(null, { stdout: '{}' })
-            : callback(null, { stdout: '{"format": {"tags": {"title": "Testing"}}}' });
-    },
-}));
+jest.mock('../player');
 
 describe('_add configuration', () => {
     it('should have basic command infomation', () => {
@@ -58,6 +49,8 @@ describe('_add', () => {
         mocks.react.mockReturnThis();
         mocks.db.song.create.mockClear();
         mocks.logger.error.mockClear();
+        mocks.player.supports.mockClear();
+        mocks.player.getTitle.mockClear();
 
         const client = new Client();
         const guild = new Guild(client, {});
@@ -66,6 +59,9 @@ describe('_add', () => {
     });
 
     it('adds a file to the manager with a title', async () => {
+        mocks.player.supports.mockReturnValue(true);
+        mocks.player.getTitle.mockResolvedValue('Testing');
+
         await command.run(message, { _: ['test.mp3', 'foo', 'bar'] });
         expect(mocks.react).toBeCalledWith('🎵');
 
@@ -82,6 +78,9 @@ describe('_add', () => {
     });
 
     it('adds a file to the manager without a title', async () => {
+        mocks.player.supports.mockReturnValue(true);
+        mocks.player.getTitle.mockResolvedValue(null);
+
         await command.run(message, { _: ['notitle.mp3', 'foo', 'bar'] });
         expect(mocks.react).toBeCalledWith('🎵');
 
@@ -117,19 +116,23 @@ describe('_add', () => {
         }
     });
 
-    it('will throw an error if file does not exist', async () => {
+    it('will throw an error if file is unsupported', async () => {
+        mocks.player.supports.mockReturnValue(false);
+
         try {
             await command.run(message, { _: ['none.mp3', 'foo', 'bar'] });
             fail('expected error to be thrown');
         } catch (err) {
             expect(err).toBeInstanceOf(FriendlyError);
-            expect(err.message).toEqual('Could not find file. I only support local files for now.');
+            expect(err.message).toEqual('I was unable to add that. Unsupported type.');
         }
     });
 
     it('will throw an error if cannot be added to database', async () => {
         const dbErr = new Error('duplicate');
         mocks.db.song.create.mockRejectedValue(dbErr);
+        mocks.player.supports.mockReturnValue(true);
+        mocks.player.getTitle.mockResolvedValue(null);
 
         try {
             await command.run(message, { _: ['test.mp3', 'foo', 'bar'] });

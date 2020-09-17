@@ -1,14 +1,10 @@
-import { exec } from 'child_process';
 import { Message } from 'discord.js';
-import fs from 'fs-extra';
-import { promisify } from 'util';
 
 import db from '../db';
 import { FriendlyError } from '../error';
 import logger from '../logger';
+import player from '../player';
 import { Arguments, Command } from '../types';
-
-const shell = promisify(exec);
 
 const command: Command = {
     name: 'add',
@@ -23,12 +19,11 @@ const command: Command = {
             throw new FriendlyError('Invalid command usage: [song] [...tag]');
         }
 
-        if (!fs.existsSync(file)) {
-            throw new FriendlyError('Could not find file. I only support local files for now.');
+        if (!player.supports(file)) {
+            throw new FriendlyError('I was unable to add that. Unsupported type.');
         }
 
-        const { stdout } = await shell(`ffprobe -v quiet -print_format json -show_format -show_streams "${file}"`);
-        const title = JSON.parse(stdout).format?.tags?.title || null;
+        const title = await player.getTitle(file);
 
         try {
             await db.song.create({

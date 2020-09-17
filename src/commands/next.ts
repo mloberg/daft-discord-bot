@@ -1,8 +1,8 @@
 import { Message } from 'discord.js';
-import { createReadStream } from 'fs';
 
 import { FriendlyError } from '../error';
 import logger from '../logger';
+import player from '../player';
 import playlist from '../playlist';
 import { Arguments, Command } from '../types';
 
@@ -23,13 +23,13 @@ const command: Command = {
 
         const song = playlist.next(guild, room);
         if (!song) {
-            connection.disconnect();
-
-            return;
+            return connection.disconnect();
         }
 
+        logger.debug(`Playing ${song}`);
+
         const volume = Math.min(Number(args.volume || args.v) || 100, 100) / 100;
-        const dispatcher = connection.play(createReadStream(song), { type: 'webm/opus', volume });
+        const dispatcher = await player.play(song, connection, { volume });
 
         dispatcher.on('error', (err) => {
             logger.error({ guild, room, type: err.name, stack: err.stack }, err.message);

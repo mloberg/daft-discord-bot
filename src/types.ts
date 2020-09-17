@@ -1,4 +1,4 @@
-import { Message, MessageReaction } from 'discord.js';
+import { Message, MessageReaction, StreamDispatcher, StreamOptions, VoiceConnection } from 'discord.js';
 
 export interface Dictionary<T> {
     [key: string]: T;
@@ -21,4 +21,10 @@ export interface Command {
     usage?: string;
     examples?: string[];
     run(message: Message, args: Arguments): Promise<Message | MessageReaction | void>;
+}
+
+export interface Player {
+    play(location: string, connection: VoiceConnection, options?: StreamOptions): Promise<StreamDispatcher>;
+    getTitle(location: string): Promise<string | null>;
+    supports(location: string): boolean;
 }
