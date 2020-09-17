@@ -2,6 +2,7 @@ import { StreamDispatcher, StreamOptions, VoiceConnection } from 'discord.js';
 
 import { Player as PlayerInterface } from '../types';
 import LocalFile from './local';
+import YouTube from './yt';
 
 export class Player implements PlayerInterface {
     private players: PlayerInterface[];
@@ -39,4 +40,4 @@ export class Player implements PlayerInterface {
     }
 }
 
-export default new Player(new LocalFile());
+export default new Player(new LocalFile(), new YouTube());
