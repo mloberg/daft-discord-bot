@@ -2,5 +2,6 @@
 !dist
 !src
 !prisma
+prisma/*.db
 !package*.json
 !tsconfig.json

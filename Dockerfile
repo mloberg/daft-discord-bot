@@ -15,6 +15,6 @@ COPY . .
 RUN npx prisma generate \
     && npm run build \
     && npm prune --production \
-    && rm -rf src prisma tsconfig.json
+    && rm -rf src tsconfig.json
 
 CMD [ "npm", "start", "--silent" ]
