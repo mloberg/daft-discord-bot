@@ -13,7 +13,7 @@
     "watch:ts": "tsc -w",
     "watch:node": "nodemon -w dist --exec \"npm run --silent start\"",
     "pretest": "rm -f prisma/test.db && DATABASE_URL=\"file:./test.db\" prisma --experimental migrate up --create-db --auto-approve",
-    "test": "DATABASE_URL=\"file:./test.db\" jest --detectOpenHandles --coverage --verbose",
+    "test": "DATABASE_URL=\"file:./test.db\" BOT_TOKEN=test jest --detectOpenHandles --coverage --verbose",
     "watch:test": "npm run test -- --watch",
     "lint": "eslint . --ext .ts --ext .js",
     "fix": "npm run lint -- --fix"

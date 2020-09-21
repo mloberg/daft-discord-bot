@@ -1,22 +1,24 @@
 import { schema } from './config';
 
+const defaults = { BOT_TOKEN: 'xxx' };
+
 describe('env.NODE_ENV', () => {
     it('defaults to production', () => {
-        const { error, value } = schema.validate({});
+        const { error, value } = schema.validate(defaults);
 
         expect(error).toBeFalsy();
         expect(value.NODE_ENV).toEqual('production');
     });
 
     it('allows valid values', () => {
-        expect(schema.validate({ NODE_ENV: 'development' }).error).toBeFalsy();
-        expect(schema.validate({ NODE_ENV: 'test' }).error).toBeFalsy();
-        expect(schema.validate({ NODE_ENV: 'production' }).error).toBeFalsy();
-        expect(schema.validate({ NODE_ENV: 'PRODUCTION' }).error).toBeFalsy();
+        expect(schema.validate({ NODE_ENV: 'development', ...defaults }).error).toBeFalsy();
+        expect(schema.validate({ NODE_ENV: 'test', ...defaults }).error).toBeFalsy();
+        expect(schema.validate({ NODE_ENV: 'production', ...defaults }).error).toBeFalsy();
+        expect(schema.validate({ NODE_ENV: 'PRODUCTION', ...defaults }).error).toBeFalsy();
     });
 
     it('returns an error on invalid env', () => {
-        expect(schema.validate({ NODE_ENV: 'foo' }).error?.message).toEqual(
+        expect(schema.validate({ NODE_ENV: 'foo', ...defaults }).error?.message).toEqual(
             '"NODE_ENV" must be one of [development, test, production]',
         );
     });
@@ -24,21 +26,21 @@ describe('env.NODE_ENV', () => {
 
 describe('env.LOG_LEVEL', () => {
     it('defaults to info', () => {
-        const { error, value } = schema.validate({});
+        const { error, value } = schema.validate(defaults);
 
         expect(error).toBeFalsy();
         expect(value.LOG_LEVEL).toEqual('info');
     });
 
     it('allows valid values', () => {
-        expect(schema.validate({ LOG_LEVEL: 'error' }).error).toBeFalsy();
-        expect(schema.validate({ LOG_LEVEL: 'debug' }).error).toBeFalsy();
-        expect(schema.validate({ LOG_LEVEL: 'silent' }).error).toBeFalsy();
-        expect(schema.validate({ LOG_LEVEL: 'INFO' }).error).toBeFalsy();
+        expect(schema.validate({ LOG_LEVEL: 'error', ...defaults }).error).toBeFalsy();
+        expect(schema.validate({ LOG_LEVEL: 'debug', ...defaults }).error).toBeFalsy();
+        expect(schema.validate({ LOG_LEVEL: 'silent', ...defaults }).error).toBeFalsy();
+        expect(schema.validate({ LOG_LEVEL: 'INFO', ...defaults }).error).toBeFalsy();
     });
 
     it('returns an error on invalid level', () => {
-        expect(schema.validate({ LOG_LEVEL: 'foo' }).error?.message).toEqual(
+        expect(schema.validate({ LOG_LEVEL: 'foo', ...defaults }).error?.message).toEqual(
             '"LOG_LEVEL" must be one of [fatal, error, warn, info, debug, trace, silent]',
         );
     });
@@ -46,33 +48,43 @@ describe('env.LOG_LEVEL', () => {
 
 describe('env.DEBUG', () => {
     it('defaults to false', () => {
-        const { error, value } = schema.validate({});
+        const { error, value } = schema.validate(defaults);
 
         expect(error).toBeFalsy();
         expect(value.APP_DEBUG).toEqual(false);
     });
 
     it('allows valid values', () => {
-        expect(schema.validate({ APP_DEBUG: 'true' }).error).toBeFalsy();
-        expect(schema.validate({ APP_DEBUG: 'false' }).error).toBeFalsy();
-        expect(schema.validate({ APP_DEBUG: 'TRUE' }).error).toBeFalsy();
-        expect(schema.validate({ APP_DEBUG: 'FALSE' }).error).toBeFalsy();
+        expect(schema.validate({ APP_DEBUG: 'true', ...defaults }).error).toBeFalsy();
+        expect(schema.validate({ APP_DEBUG: 'false', ...defaults }).error).toBeFalsy();
+        expect(schema.validate({ APP_DEBUG: 'TRUE', ...defaults }).error).toBeFalsy();
+        expect(schema.validate({ APP_DEBUG: 'FALSE', ...defaults }).error).toBeFalsy();
     });
 
     it('returns an error on invalid level', () => {
-        expect(schema.validate({ APP_DEBUG: 'foo' }).error?.message).toEqual('"APP_DEBUG" must be a boolean');
+        expect(schema.validate({ APP_DEBUG: 'foo', ...defaults }).error?.message).toEqual(
+            '"APP_DEBUG" must be a boolean',
+        );
     });
 });
 
 describe('env.BOT_PREFIX', () => {
     it('defaults to _', () => {
-        const { error, value } = schema.validate({});
+        const { error, value } = schema.validate(defaults);
 
         expect(error).toBeFalsy();
         expect(value.BOT_PREFIX).toEqual('_');
     });
 
     it('can not be @', () => {
-        expect(schema.validate({ BOT_PREFIX: '@' }).error?.message).toEqual('"BOT_PREFIX" contains an invalid value');
+        expect(schema.validate({ BOT_PREFIX: '@', ...defaults }).error?.message).toEqual(
+            '"BOT_PREFIX" contains an invalid value',
+        );
+    });
+});
+
+describe('env.BOT_TOKEN', () => {
+    it('is required', () => {
+        expect(schema.validate({}).error?.message).toEqual('"BOT_TOKEN" is required');
     });
 });

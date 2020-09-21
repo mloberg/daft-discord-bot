@@ -11,7 +11,7 @@ export const schema = joi
             .default('info'),
         APP_DEBUG: joi.boolean().default(false),
         BOT_PREFIX: joi.string().invalid('@').default('_'),
-        BOT_TOKEN: joi.string().presence(process.env.NODE_ENV === 'test' ? 'optional' : 'required'),
+        BOT_TOKEN: joi.string().required(),
     })
     .unknown()
     .required();
