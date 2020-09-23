@@ -6,6 +6,7 @@ import config from './config';
 import { FriendlyError } from './error';
 import logger from './logger';
 import { Arguments } from './types';
+import { escapeRegex } from './utils';
 
 const client = new Client();
 
@@ -25,15 +26,17 @@ client.once('ready', () => {
 });
 
 client.on('message', async (message) => {
-    if (!message.content.startsWith(config.prefix) || message.author.bot) {
+    const prefixRegex = new RegExp(`^(<@!?${client.user?.id}>|${escapeRegex(config.prefix)})\\s*`);
+    if (message.author.bot || !prefixRegex.test(message.content)) {
         return;
     }
 
-    const [commandName, ...args] = message.content.slice(config.prefix.length).trim().split(' ');
+    const [, matchedPrefix] = message.content.match(prefixRegex) ?? [];
+    const [commandName, ...args] = message.content.slice(matchedPrefix.length).trim().split(/ +/);
     const parsed: Arguments = yargs.help(false).parse(args.join(' '));
     delete parsed.$0;
 
-    const command = commands.get(commandName);
+    const command = commands.get(commandName.toLowerCase());
     if (!command) {
         return;
     }
