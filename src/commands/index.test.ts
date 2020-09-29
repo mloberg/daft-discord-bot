@@ -55,7 +55,7 @@ describe('_help', () => {
     });
 
     it.each(['help', 'add', 'play', 'pause', 'volume'])('returns the details for the %s command', async (cmd) => {
-        const reply = await help.run(message, { _: [cmd] });
+        const reply = await help.run(message, { _: [cmd], $0: 'help' });
 
         expect(reply).toEqual(message.channel);
         expect(mocks.send).toMatchSnapshot();
@@ -63,7 +63,7 @@ describe('_help', () => {
 
     it('returns an error if an invalid command is given', async () => {
         try {
-            await help.run(message, { _: ['invalid'] });
+            await help.run(message, { _: ['invalid'], $0: 'help' });
 
             fail('expected error to be thrown');
         } catch (err) {

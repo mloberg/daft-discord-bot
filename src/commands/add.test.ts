@@ -62,7 +62,7 @@ describe('_add', () => {
         mocks.player.supports.mockReturnValue(true);
         mocks.player.getTitle.mockResolvedValue('Testing');
 
-        await command.run(message, { _: ['test.mp3', 'foo', 'bar'] });
+        await command.run(message, { _: ['test.mp3', 'foo', 'bar'], $0: 'add' });
         expect(mocks.react).toBeCalledWith('🎵');
 
         expect(mocks.db.song.create).toHaveBeenCalledTimes(1);
@@ -81,7 +81,7 @@ describe('_add', () => {
         mocks.player.supports.mockReturnValue(true);
         mocks.player.getTitle.mockResolvedValue(null);
 
-        await command.run(message, { _: ['notitle.mp3', 'foo', 'bar'] });
+        await command.run(message, { _: ['notitle.mp3', 'foo', 'bar'], $0: 'add' });
         expect(mocks.react).toBeCalledWith('🎵');
 
         expect(mocks.db.song.create).toHaveBeenCalledTimes(1);
@@ -98,7 +98,7 @@ describe('_add', () => {
 
     it('will throw an error if no file given', async () => {
         try {
-            await command.run(message, { _: [] });
+            await command.run(message, { _: [], $0: 'add' });
             fail('expected error to be thrown');
         } catch (err) {
             expect(err).toBeInstanceOf(FriendlyError);
@@ -108,7 +108,7 @@ describe('_add', () => {
 
     it('will throw an error if no tags given', async () => {
         try {
-            await command.run(message, { _: ['test.mp3'] });
+            await command.run(message, { _: ['test.mp3'], $0: 'add' });
             fail('expected error to be thrown');
         } catch (err) {
             expect(err).toBeInstanceOf(FriendlyError);
@@ -120,7 +120,7 @@ describe('_add', () => {
         mocks.player.supports.mockReturnValue(false);
 
         try {
-            await command.run(message, { _: ['none.mp3', 'foo', 'bar'] });
+            await command.run(message, { _: ['none.mp3', 'foo', 'bar'], $0: 'add' });
             fail('expected error to be thrown');
         } catch (err) {
             expect(err).toBeInstanceOf(FriendlyError);
@@ -135,7 +135,7 @@ describe('_add', () => {
         mocks.player.getTitle.mockResolvedValue(null);
 
         try {
-            await command.run(message, { _: ['test.mp3', 'foo', 'bar'] });
+            await command.run(message, { _: ['test.mp3', 'foo', 'bar'], $0: 'add' });
             fail('expected error to be thrown');
         } catch (err) {
             expect(mocks.logger.error).toHaveBeenCalledTimes(1);
