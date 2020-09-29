@@ -62,7 +62,7 @@ describe('_resume', () => {
     it('resumes current song', async () => {
         const message = new Message(client, {}, channel);
 
-        await command.run(message, { _: [] });
+        await command.run(message, { _: [], $0: 'resume' });
 
         expect(mocks.resume).toHaveBeenCalledTimes(1);
         expect(mocks.react).toBeCalledWith('🎶');
@@ -72,7 +72,7 @@ describe('_resume', () => {
         const message = new Message(client, {}, channel);
         mocks.join.mockReturnValue({ dispatcher: null });
 
-        await command.run(message, { _: [] });
+        await command.run(message, { _: [], $0: 'resume' });
 
         expect(mocks.resume).toHaveBeenCalledTimes(0);
         expect(mocks.react).toHaveBeenCalledTimes(0);
@@ -85,7 +85,7 @@ describe('_resume', () => {
         const message = new Message(client, {}, channel);
 
         try {
-            await command.run(message, { _: [] });
+            await command.run(message, { _: [], $0: 'resume' });
             fail('expected error to be thrown');
         } catch (err) {
             expect(err).toBeInstanceOf(FriendlyError);

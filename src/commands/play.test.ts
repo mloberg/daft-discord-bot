@@ -94,7 +94,7 @@ describe('_play', () => {
     it('starts a new playlist', async () => {
         const message = new Message(client, {}, channel);
 
-        await command.run(message, { _: ['foo'] });
+        await command.run(message, { _: ['foo'], $0: 'play' });
 
         const songs = playlist.queue('testing', 'daft-test');
         expect(songs).toHaveLength(2);
@@ -102,27 +102,27 @@ describe('_play', () => {
         expect(songs).toContain('test.mp3');
 
         expect(mocks.next.run).toHaveBeenCalledTimes(1);
-        expect(mocks.next.run).toHaveBeenCalledWith(message, { _: [] });
+        expect(mocks.next.run).toHaveBeenCalledWith(message, { _: ['foo'], $0: 'play' });
     });
 
     it('will only play songs with all tags', async () => {
         const message = new Message(client, {}, channel);
 
-        await command.run(message, { _: ['foo', 'bar'] });
+        await command.run(message, { _: ['foo', 'bar'], $0: 'play' });
 
         const songs = playlist.queue('testing', 'daft-test');
         expect(songs).toHaveLength(1);
         expect(songs).toContain('test.mp3');
 
         expect(mocks.next.run).toHaveBeenCalledTimes(1);
-        expect(mocks.next.run).toHaveBeenCalledWith(message, { _: [] });
+        expect(mocks.next.run).toHaveBeenCalledWith(message, { _: ['foo', 'bar'], $0: 'play' });
     });
 
     it('will throw an error if no songs were found', async () => {
         const message = new Message(client, {}, channel);
 
         try {
-            await command.run(message, { _: ['none'] });
+            await command.run(message, { _: ['none'], $0: 'play' });
             fail('expected error to be thrown');
         } catch (err) {
             expect(err).toBeInstanceOf(FriendlyError);
@@ -137,7 +137,7 @@ describe('_play', () => {
         const message = new Message(client, {}, channel);
 
         try {
-            await command.run(message, { _: [] });
+            await command.run(message, { _: [], $0: 'play' });
             fail('expected error to be thrown');
         } catch (err) {
             expect(err).toBeInstanceOf(FriendlyError);

@@ -75,13 +75,13 @@ describe('_playing', () => {
         playlist.create('testing', 'daft-test', ['test.mp3']);
         playlist.next('testing', 'daft-test');
 
-        await command.run(message, { _: [] });
+        await command.run(message, { _: [], $0: 'playing' });
         expect(mocks.reply).toBeCalledWith('Testing - test.mp3 (*foo*, *bar*)');
     });
 
     it('throws an error if no song is playing', async () => {
         try {
-            await command.run(message, { _: [] });
+            await command.run(message, { _: [], $0: 'playing' });
             fail('expected error to be thrown');
         } catch (err) {
             expect(err).toBeInstanceOf(FriendlyError);
@@ -94,7 +94,7 @@ describe('_playing', () => {
         playlist.next('testing', 'daft-test');
 
         try {
-            await command.run(message, { _: [] });
+            await command.run(message, { _: [], $0: 'playing' });
             fail('expected error to be thrown');
         } catch (err) {
             expect(err).toBeInstanceOf(FriendlyError);
@@ -109,7 +109,7 @@ describe('_playing', () => {
         const message = new Message(client, {}, channel);
 
         try {
-            await command.run(message, { _: [] });
+            await command.run(message, { _: [], $0: 'playing' });
             fail('expected error to be thrown');
         } catch (err) {
             expect(err).toBeInstanceOf(FriendlyError);

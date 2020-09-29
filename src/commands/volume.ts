@@ -1,7 +1,8 @@
 import { Message } from 'discord.js';
+import { Arguments } from 'yargs';
 
 import { FriendlyError } from '../error';
-import { Arguments, Command } from '../types';
+import { Command } from '../types';
 
 const command: Command = {
     name: 'volume',

@@ -5,7 +5,6 @@ import commands from './commands';
 import config from './config';
 import { FriendlyError } from './error';
 import logger from './logger';
-import { Arguments } from './types';
 import { escapeRegex } from './utils';
 
 const client = new Client();
@@ -33,8 +32,8 @@ client.on('message', async (message) => {
 
     const [, matchedPrefix] = message.content.match(prefixRegex) ?? [];
     const [commandName, ...args] = message.content.slice(matchedPrefix.length).trim().split(/ +/);
-    const parsed: Arguments = yargs.help(false).parse(args.join(' '));
-    delete parsed.$0;
+    const parsed = yargs.help(false).parse(args.join(' '));
+    parsed.$0 = commandName;
 
     const command = commands.get(commandName.toLowerCase());
     if (!command) {

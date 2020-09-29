@@ -73,7 +73,14 @@ describe('_tag', () => {
         playlist.create('testing', 'daft-test', ['test.mp3']);
         playlist.next('testing', 'daft-test');
 
-        await command.run(message, { _: [], add: ['one', 'two'], a: 'three', remove: 'foo', r: ['test', 'testing'] });
+        await command.run(message, {
+            $0: 'tag',
+            _: [],
+            add: ['one', 'two'],
+            a: 'three',
+            remove: 'foo',
+            r: ['test', 'testing'],
+        });
         expect(mocks.react).toBeCalledWith('🎵');
 
         const song = await db.song.findOne({
@@ -91,7 +98,7 @@ describe('_tag', () => {
 
     it('throws an error if no song is currently playing', async () => {
         try {
-            await command.run(message, { _: [] });
+            await command.run(message, { $0: 'tag', _: [] });
             fail('expected error to be thrown');
         } catch (err) {
             expect(err).toBeInstanceOf(FriendlyError);
@@ -104,7 +111,7 @@ describe('_tag', () => {
         playlist.next('testing', 'daft-test');
 
         try {
-            await command.run(message, { _: [] });
+            await command.run(message, { $0: 'tag', _: [] });
             fail('expected error to be thrown');
         } catch (err) {
             expect(err).toBeInstanceOf(FriendlyError);
@@ -119,7 +126,7 @@ describe('_tag', () => {
         const message = new Message(client, {}, channel);
 
         try {
-            await command.run(message, { _: [] });
+            await command.run(message, { $0: 'tag', _: [] });
             fail('expected error to be thrown');
         } catch (err) {
             expect(err).toBeInstanceOf(FriendlyError);

@@ -1,9 +1,10 @@
 import { Message } from 'discord.js';
+import { Arguments } from 'yargs';
 
 import db from '../db';
 import { FriendlyError } from '../error';
 import playlist from '../playlist';
-import { Arguments, Command } from '../types';
+import { Command } from '../types';
 
 const argsToArray = (...args: (string | string[])[]): string[] => {
     const final = [];
@@ -45,8 +46,8 @@ const command: Command = {
         if (!song) {
             throw new FriendlyError('I was unable to find that song');
         }
-        const add = argsToArray(args.add, args.a);
-        const remove = argsToArray(args.remove, args.r);
+        const add = argsToArray(args.add as string, args.a as string);
+        const remove = argsToArray(args.remove as string, args.r as string);
 
         await db.song.update({
             where: { id: song.id },

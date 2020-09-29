@@ -1,8 +1,9 @@
 import { Message } from 'discord.js';
+import { Arguments } from 'yargs';
 
 import config from '../config';
 import { FriendlyError } from '../error';
-import { Arguments, Command } from '../types';
+import { Command } from '../types';
 import add from './add';
 import next from './next';
 import pause from './pause';

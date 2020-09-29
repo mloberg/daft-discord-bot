@@ -1,10 +1,11 @@
 import { Message } from 'discord.js';
+import { Arguments } from 'yargs';
 
 import { FriendlyError } from '../error';
 import logger from '../logger';
 import player from '../player';
 import playlist from '../playlist';
-import { Arguments, Command } from '../types';
+import { Command } from '../types';
 
 const command: Command = {
     name: 'next',

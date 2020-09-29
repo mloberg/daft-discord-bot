@@ -53,7 +53,7 @@ describe('_stop', () => {
     it('leaves the voice channel', async () => {
         const message = new Message(client, {}, channel);
 
-        await command.run(message, { _: [] });
+        await command.run(message, { _: [], $0: 'stop' });
 
         expect(mocks.leave).toHaveBeenCalledTimes(1);
         expect(mocks.react).toBeCalledWith('🎶');
@@ -66,7 +66,7 @@ describe('_stop', () => {
         const message = new Message(client, {}, channel);
 
         try {
-            await command.run(message, { _: [] });
+            await command.run(message, { _: [], $0: 'stop' });
             fail('expected error to be thrown');
         } catch (err) {
             expect(err).toBeInstanceOf(FriendlyError);

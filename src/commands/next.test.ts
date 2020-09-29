@@ -81,7 +81,7 @@ describe('_next', () => {
         const message = new Message(client, {}, channel);
         mocks.playlist.next.mockReturnValue(__filename);
 
-        await command.run(message, { _: [] });
+        await command.run(message, { _: [], $0: 'next' });
         expect(mocks.react).toHaveBeenCalledTimes(1);
         expect(mocks.react).toHaveBeenCalledWith('🎶');
         expect(mocks.playlist.next).toHaveBeenCalledTimes(1);
@@ -114,7 +114,7 @@ describe('_next', () => {
         const message = new Message(client, {}, channel);
         mocks.playlist.next.mockReturnValue(__filename);
 
-        await command.run(message, { _: [], volume: '50' });
+        await command.run(message, { $0: 'next', _: [], volume: '50' });
         expect(mocks.react).toHaveBeenCalledTimes(1);
         expect(mocks.react).toHaveBeenCalledWith('🎶');
         expect(mocks.player.play).toHaveBeenCalledTimes(1);
@@ -125,7 +125,7 @@ describe('_next', () => {
         const message = new Message(client, {}, channel);
         mocks.playlist.next.mockReturnValue(null);
 
-        await command.run(message, { _: [] });
+        await command.run(message, { _: [], $0: 'next' });
         expect(mocks.react).toHaveBeenCalledTimes(0);
 
         expect(mocks.playlist.next).toHaveBeenCalledTimes(1);
@@ -143,7 +143,7 @@ describe('_next', () => {
         const message = new Message(client, {}, channel);
 
         try {
-            await command.run(message, { _: [] });
+            await command.run(message, { _: [], $0: 'next' });
             fail('expected error to be thrown');
         } catch (err) {
             expect(err).toBeInstanceOf(FriendlyError);

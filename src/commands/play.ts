@@ -1,10 +1,11 @@
 import { join } from '@prisma/client';
 import { Message } from 'discord.js';
+import { Arguments } from 'yargs';
 
 import db from '../db';
 import { FriendlyError } from '../error';
 import playlist from '../playlist';
-import { Arguments, Command } from '../types';
+import { Command } from '../types';
 import next from './next';
 
 const command: Command = {
@@ -39,7 +40,7 @@ const command: Command = {
             results.map((r) => r.location),
         );
 
-        await next.run(message, { _: [], volume: args.v || args.volume });
+        await next.run(message, args);
     },
 };
 

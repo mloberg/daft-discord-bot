@@ -63,7 +63,7 @@ describe('_volume', () => {
     it('sets the volume', async () => {
         const message = new Message(client, {}, channel);
 
-        await command.run(message, { _: ['50'] });
+        await command.run(message, { _: ['50'], $0: 'volume' });
 
         expect(mocks.setVolume).toHaveBeenCalledTimes(1);
         expect(mocks.setVolume).toHaveBeenCalledWith(0.5);
@@ -73,7 +73,7 @@ describe('_volume', () => {
     it("won't set volume over 100", async () => {
         const message = new Message(client, {}, channel);
 
-        await command.run(message, { _: ['150'] });
+        await command.run(message, { _: ['150'], $0: 'volume' });
 
         expect(mocks.setVolume).toHaveBeenCalledTimes(1);
         expect(mocks.setVolume).toHaveBeenCalledWith(1);
@@ -83,7 +83,7 @@ describe('_volume', () => {
     it('defaults to 100% volume', async () => {
         const message = new Message(client, {}, channel);
 
-        await command.run(message, { _: [] });
+        await command.run(message, { _: [], $0: 'volume' });
 
         expect(mocks.setVolume).toHaveBeenCalledTimes(1);
         expect(mocks.setVolume).toHaveBeenCalledWith(1);
@@ -94,7 +94,7 @@ describe('_volume', () => {
         const message = new Message(client, {}, channel);
         mocks.join.mockReturnValue({ dispatcher: null });
 
-        await command.run(message, { _: [] });
+        await command.run(message, { _: [], $0: 'volume' });
 
         expect(mocks.setVolume).toHaveBeenCalledTimes(0);
         expect(mocks.react).toHaveBeenCalledTimes(0);
@@ -107,7 +107,7 @@ describe('_volume', () => {
         const message = new Message(client, {}, channel);
 
         try {
-            await command.run(message, { _: [] });
+            await command.run(message, { _: [], $0: 'volume' });
             fail('expected error to be thrown');
         } catch (err) {
             expect(err).toBeInstanceOf(FriendlyError);

@@ -45,7 +45,7 @@ describe('_ping', () => {
     });
 
     it('responds', async () => {
-        await command.run(message, { _: [] });
+        await command.run(message, { _: [], $0: 'ping' });
 
         expect(mocks.react).toBeCalledWith('👍');
     });
