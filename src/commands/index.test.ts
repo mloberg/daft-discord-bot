@@ -48,7 +48,7 @@ describe('_help', () => {
     });
 
     it('returns a list of all commands', async () => {
-        const reply = await help.run(message, { _: [] });
+        const reply = await help.run(message, { _: [], $0: 'help' });
 
         expect(reply).toEqual(message.channel);
         expect(mocks.send).toMatchSnapshot();
