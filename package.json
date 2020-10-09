@@ -29,7 +29,7 @@
     "ytdl-core-discord": "^1.2.3"
   },
   "devDependencies": {
-    "@prisma/cli": "^2.7.1",
+    "@prisma/cli": "^2.8.1",
     "@tsconfig/node12": "^1.0.7",
     "@types/jest": "^26.0.14",
     "@types/node": "^14.11.7",
