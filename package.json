@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@discordjs/opus": "^0.3.2",
-    "@prisma/client": "^2.7.1",
+    "@prisma/client": "^2.9.0",
     "discord.js": "^12.3.1",
     "dotenv": "^8.2.0",
     "joi": "^17.2.1",
