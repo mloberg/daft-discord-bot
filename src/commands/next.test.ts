@@ -13,33 +13,33 @@ const mocks = {
     disconnect: jest.fn(),
     dispatcher: jest.fn(),
     playlist: mocked(Playlist),
-    logger: mocked(Logger),
+    logger: mocked(Logger, true),
+    logError: mocked(Logger.error),
+    logDebug: mocked(Logger.debug),
     player: mocked(Player),
 };
 
-jest.mock('discord.js', () => {
-    return {
-        Client: jest.fn(),
-        Guild: jest.fn(),
-        TextChannel: jest.fn(),
-        Message: jest.fn().mockImplementation(() => ({
-            member: {
-                voice: {
-                    channel: {
-                        guild: {
-                            name: 'testing',
-                        },
-                        name: 'daft-test',
-                        join: mocks.connection.mockImplementation(() => ({
-                            disconnect: mocks.disconnect,
-                        })),
+jest.mock('discord.js', () => ({
+    Client: jest.fn(),
+    Guild: jest.fn(),
+    TextChannel: jest.fn(),
+    Message: jest.fn().mockImplementation(() => ({
+        member: {
+            voice: {
+                channel: {
+                    guild: {
+                        name: 'testing',
                     },
+                    name: 'daft-test',
+                    join: mocks.connection.mockImplementation(() => ({
+                        disconnect: mocks.disconnect,
+                    })),
                 },
             },
-            react: mocks.react,
-        })),
-    };
-});
+        },
+        react: mocks.react,
+    })),
+}));
 
 jest.mock('../logger');
 jest.mock('../player');
@@ -68,8 +68,8 @@ describe('_next', () => {
         mocks.disconnect.mockClear();
         mocks.dispatcher.mockClear();
         mocks.playlist.next.mockClear();
-        mocks.logger.error.mockClear();
-        mocks.logger.debug.mockClear();
+        mocks.logError.mockClear();
+        mocks.logDebug.mockClear();
         mocks.player.play.mockClear();
 
         (mocks.player.play as jest.Mock).mockResolvedValue({
@@ -88,7 +88,7 @@ describe('_next', () => {
         expect(mocks.playlist.next).toHaveBeenCalledWith('testing', 'daft-test');
         expect(mocks.player.play).toHaveBeenCalledTimes(1);
         expect(mocks.player.play).toHaveBeenCalledWith(__filename, mocks.connection(), { volume: 1 });
-        expect(mocks.logger.debug).toHaveBeenCalledWith(`Playing ${__filename}`);
+        expect(mocks.logDebug).toHaveBeenCalledWith(`Playing ${__filename}`);
 
         expect(mocks.dispatcher).toHaveBeenCalledTimes(2);
         const [error, errorFunc] = mocks.dispatcher.mock.calls[0];
@@ -97,8 +97,8 @@ describe('_next', () => {
         const err = new Error('foo');
         err.stack = 'error stack';
         errorFunc(err);
-        expect(mocks.logger.error).toHaveBeenCalledTimes(1);
-        expect(mocks.logger.error).toHaveBeenLastCalledWith(
+        expect(mocks.logError).toHaveBeenCalledTimes(1);
+        expect(mocks.logError).toHaveBeenLastCalledWith(
             { guild: 'testing', room: 'daft-test', stack: 'error stack', type: 'Error' },
             'foo',
         );

@@ -36,7 +36,7 @@ export const help: Command = {
     description: 'Get help with commands',
     alias: ['commands'],
     usage: '[COMMAND]',
-    async run(message: Message, args: Arguments): Promise<Message> {
+    async run(message: Message, args: Arguments): Promise<Message | Message[]> {
         if (!args._.length) {
             return message.channel.send(
                 [

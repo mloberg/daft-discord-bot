@@ -11,7 +11,7 @@ export interface Command {
     alias?: string[];
     usage?: string;
     examples?: string[];
-    run(message: Message, args: Arguments): Promise<Message | MessageReaction | void>;
+    run(message: Message, args: Arguments): Promise<Message | Message[] | MessageReaction | void>;
 }
 
 export interface Player {

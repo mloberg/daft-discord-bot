@@ -10,7 +10,7 @@ import command from './add';
 const mocks = {
     react: jest.fn(),
     db: mocked(db, true),
-    logger: mocked(logger),
+    logError: mocked(logger.error),
     player: mocked(player),
 };
 
@@ -48,7 +48,7 @@ describe('_add', () => {
         mocks.react.mockClear();
         mocks.react.mockReturnThis();
         mocks.db.song.create.mockClear();
-        mocks.logger.error.mockClear();
+        mocks.logError.mockClear();
         mocks.player.supports.mockClear();
         mocks.player.getTitle.mockClear();
 
@@ -138,8 +138,8 @@ describe('_add', () => {
             await command.run(message, { _: ['test.mp3', 'foo', 'bar'], $0: 'add' });
             fail('expected error to be thrown');
         } catch (err) {
-            expect(mocks.logger.error).toHaveBeenCalledTimes(1);
-            expect(mocks.logger.error).toHaveBeenCalledWith(dbErr);
+            expect(mocks.logError).toHaveBeenCalledTimes(1);
+            expect(mocks.logError).toHaveBeenCalledWith(dbErr);
             expect(err).toBeInstanceOf(FriendlyError);
             expect(err.message).toEqual('I was unable to add that song. Does it exist already?');
         }

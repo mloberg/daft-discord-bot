@@ -19,33 +19,33 @@
     "fix": "npm run lint -- --fix"
   },
   "dependencies": {
-    "@discordjs/opus": "^0.3.2",
-    "@prisma/client": "^2.7.1",
-    "discord.js": "^12.3.1",
+    "@discordjs/opus": "^0.3.3",
+    "@prisma/client": "^2.10.1",
+    "discord.js": "^12.4.1",
     "dotenv": "^8.2.0",
-    "joi": "^17.2.1",
+    "joi": "^17.3.0",
     "pino": "^6.7.0",
-    "yargs": "^16.0.3",
-    "ytdl-core-discord": "^1.2.3"
+    "yargs": "^16.1.0",
+    "ytdl-core-discord": "^1.2.4"
   },
   "devDependencies": {
-    "@prisma/cli": "^2.7.1",
+    "@prisma/cli": "^2.10.1",
     "@tsconfig/node12": "^1.0.7",
-    "@types/jest": "^26.0.14",
-    "@types/node": "^14.11.7",
-    "@types/pino": "^6.3.2",
-    "@typescript-eslint/eslint-plugin": "^4.4.0",
-    "@typescript-eslint/parser": "^4.4.0",
+    "@types/jest": "^26.0.15",
+    "@types/node": "^14.14.6",
+    "@types/pino": "^6.3.3",
+    "@typescript-eslint/eslint-plugin": "^4.6.1",
+    "@typescript-eslint/parser": "^4.6.1",
     "concurrently": "^5.3.0",
-    "eslint": "^7.10.0",
-    "eslint-config-prettier": "^6.12.0",
+    "eslint": "^7.12.1",
+    "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-simple-import-sort": "^5.0.3",
-    "jest": "^26.5.2",
-    "nodemon": "^2.0.4",
+    "jest": "^26.6.2",
+    "nodemon": "^2.0.6",
     "pino-pretty": "^4.3.0",
     "prettier": "^2.1.2",
-    "ts-jest": "^26.4.0",
-    "typescript": "^4.0.3"
+    "ts-jest": "^26.4.3",
+    "typescript": "^4.0.5"
   }
 }
