@@ -41,7 +41,7 @@ describe('yt player', () => {
         expect(dispatcher).toEqual(connection);
         expect(mockPlay).toHaveBeenCalledTimes(1);
         expect(mockPlay).toHaveBeenCalledWith('__stream__', { type: 'opus' });
-        expect(mockYt).toHaveBeenCalledWith('http://example.com/play');
+        expect(mockYt).toHaveBeenCalledWith('http://example.com/play', { highWaterMark: 1 << 25 });
     });
 
     it('gets the title from a url', async () => {
