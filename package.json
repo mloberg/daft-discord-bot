@@ -24,6 +24,7 @@
     "discord.js": "^12.4.1",
     "dotenv": "^8.2.0",
     "joi": "^17.3.0",
+    "lodash": "^4.17.20",
     "pino": "^6.7.0",
     "yargs": "^16.1.0",
     "ytdl-core-discord": "^1.2.4"
@@ -32,6 +33,7 @@
     "@prisma/cli": "^2.10.1",
     "@tsconfig/node12": "^1.0.7",
     "@types/jest": "^26.0.15",
+    "@types/lodash": "^4.14.164",
     "@types/node": "^14.14.6",
     "@types/pino": "^6.3.3",
     "@typescript-eslint/eslint-plugin": "^4.6.1",

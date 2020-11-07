@@ -1,11 +1,11 @@
 import { Client } from 'discord.js';
+import { escapeRegExp } from 'lodash';
 import yargs from 'yargs';
 
 import commands from './commands';
 import config from './config';
 import { FriendlyError } from './error';
 import logger from './logger';
-import { escapeRegex } from './utils';
 
 const client = new Client();
 
@@ -25,7 +25,7 @@ client.once('ready', () => {
 });
 
 client.on('message', async (message) => {
-    const prefixRegex = new RegExp(`^(<@!?${client.user?.id}>|${escapeRegex(config.prefix)})\\s*`);
+    const prefixRegex = new RegExp(`^(<@!?${client.user?.id}>|${escapeRegExp(config.prefix)})\\s*`);
     if (message.author.bot || !prefixRegex.test(message.content)) {
         return;
     }
