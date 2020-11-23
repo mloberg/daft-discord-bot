@@ -10,3 +10,7 @@ export const ensureRole = async (guild: Guild): Promise<void> => {
 
     await guild.roles.create({ data: { name: config.djRole } });
 };
+
+export const hasPermission = (member: GuildMember): boolean => {
+    return member.roles.cache.find((role) => role.name === config.djRole) !== undefined;
+};

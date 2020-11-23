@@ -3,6 +3,7 @@ import { mocked } from 'ts-jest/utils';
 
 import { FriendlyError } from '../error';
 import Logger from '../logger';
+import { hasPermission } from '../permission';
 import Player from '../player';
 import Playlist from '../playlist';
 import command from './next';
@@ -17,6 +18,7 @@ const mocks = {
     logError: mocked(Logger.error),
     logDebug: mocked(Logger.debug),
     player: mocked(Player),
+    permission: mocked(hasPermission),
 };
 
 jest.mock('discord.js', () => ({
@@ -44,6 +46,7 @@ jest.mock('discord.js', () => ({
 jest.mock('../logger');
 jest.mock('../player');
 jest.mock('../playlist');
+jest.mock('../permission');
 
 describe('_next configuration', () => {
     it('should have basic command infomation', () => {
@@ -71,6 +74,7 @@ describe('_next', () => {
         mocks.logError.mockClear();
         mocks.logDebug.mockClear();
         mocks.player.play.mockClear();
+        mocks.permission.mockClear();
 
         (mocks.player.play as jest.Mock).mockResolvedValue({
             on: mocks.dispatcher,
@@ -79,6 +83,7 @@ describe('_next', () => {
 
     it('plays the next song', async () => {
         const message = new Message(client, {}, channel);
+        mocks.permission.mockReturnValue(true);
         mocks.playlist.next.mockReturnValue(__filename);
 
         await command.run(message, { _: [], $0: 'next' });
@@ -112,6 +117,7 @@ describe('_next', () => {
 
     it('will set volume of next song', async () => {
         const message = new Message(client, {}, channel);
+        mocks.permission.mockReturnValue(true);
         mocks.playlist.next.mockReturnValue(__filename);
 
         await command.run(message, { $0: 'next', _: [], volume: '50' });
@@ -123,6 +129,7 @@ describe('_next', () => {
 
     it('will disconnect if no more songs in playlist', async () => {
         const message = new Message(client, {}, channel);
+        mocks.permission.mockReturnValue(true);
         mocks.playlist.next.mockReturnValue(null);
 
         await command.run(message, { _: [], $0: 'next' });
@@ -138,9 +145,10 @@ describe('_next', () => {
 
     it('will throw an error if not in a voice channel', async () => {
         (mocked(Message) as jest.Mock).mockImplementationOnce(() => {
-            return { member: { voice: { channe: null } } };
+            return { member: { voice: { channel: null } } };
         });
         const message = new Message(client, {}, channel);
+        mocks.permission.mockReturnValue(true);
 
         try {
             await command.run(message, { _: [], $0: 'next' });
@@ -148,6 +156,19 @@ describe('_next', () => {
         } catch (err) {
             expect(err).toBeInstanceOf(FriendlyError);
             expect(err.message).toEqual('You are not in a voice channel');
+        }
+    });
+
+    it('will throw an error if does not have role', async () => {
+        const message = new Message(client, {}, channel);
+        mocks.permission.mockReturnValue(false);
+
+        try {
+            await command.run(message, { _: [], $0: 'next' });
+            fail('expected error to be thrown');
+        } catch (err) {
+            expect(err).toBeInstanceOf(FriendlyError);
+            expect(err.message).toEqual('You do not have permission to do that.');
         }
     });
 });

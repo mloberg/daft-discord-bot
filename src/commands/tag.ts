@@ -3,6 +3,7 @@ import { Arguments } from 'yargs';
 
 import db from '../db';
 import { FriendlyError } from '../error';
+import { hasPermission } from '../permission';
 import playlist from '../playlist';
 import { Command } from '../types';
 
@@ -29,6 +30,10 @@ const command: Command = {
     async run(message: Message, args: Arguments) {
         if (!message.member || !message.member.voice.channel) {
             throw new FriendlyError('You are not in a voice channel');
+        }
+
+        if (!hasPermission(message.member)) {
+            throw new FriendlyError('You do not have permission to do that.');
         }
 
         const guild = message.member.voice.channel.guild.name;
