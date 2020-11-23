@@ -12,6 +12,7 @@ export const schema = joi
         APP_DEBUG: joi.boolean().default(false),
         BOT_PREFIX: joi.string().invalid('@').default('_'),
         BOT_TOKEN: joi.string().required(),
+        DJ_ROLE: joi.string().default('daft-dj'),
     })
     .unknown()
     .required();
@@ -28,4 +29,5 @@ export default {
     debug: env.APP_DEBUG as boolean,
     prefix: env.BOT_PREFIX as string,
     token: env.BOT_TOKEN as string,
+    djRole: env.DJ_ROLE as string,
 };

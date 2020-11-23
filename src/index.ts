@@ -6,6 +6,7 @@ import commands from './commands';
 import config from './config';
 import { FriendlyError } from './error';
 import logger from './logger';
+import { ensureRole } from './permission';
 
 const client = new Client();
 
@@ -13,6 +14,10 @@ client.once('ready', () => {
     if (!client.user) {
         return;
     }
+
+    client.guilds.cache.forEach(async (guild) => {
+        await ensureRole(guild);
+    });
 
     client.user.setActivity(`Music | ${config.prefix}help`);
     logger.info(
@@ -22,6 +27,10 @@ client.once('ready', () => {
         },
         'Client ready',
     );
+});
+
+client.on('guildCreate', async (guild) => {
+    await ensureRole(guild);
 });
 
 client.on('message', async (message) => {

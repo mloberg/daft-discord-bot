@@ -18,6 +18,10 @@ the token you created above.
 
 Once that's done run `npm install`, `npm run build`, and `npm start`.
 
+When connecting to a guild, it will create a DJ role. Assign this role to users
+that should be able to add and play music. Set this role with the `DJ_ROLE`
+environment variable, otherwise it defaults to _daft-dj_.
+
 ## Development
 
 To rebuild and restart the bot on file changes, run `npm run watch`.
