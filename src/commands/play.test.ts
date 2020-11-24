@@ -3,37 +3,36 @@ import { mocked } from 'ts-jest/utils';
 
 import db from '../db';
 import { FriendlyError } from '../error';
+import { hasPermission } from '../permission';
 import playlist from '../playlist';
 import Next from './next';
 import command from './play';
 
 const mocks = {
     next: mocked(Next),
+    permission: mocked(hasPermission),
 };
 
-jest.mock('discord.js', () => {
-    return {
-        Client: jest.fn(),
-        Guild: jest.fn(),
-        TextChannel: jest.fn(),
-        Message: jest.fn().mockImplementation(() => {
-            return {
-                member: {
-                    voice: {
-                        channel: {
-                            guild: {
-                                name: 'testing',
-                            },
-                            name: 'daft-test',
-                        },
+jest.mock('discord.js', () => ({
+    Client: jest.fn(),
+    Guild: jest.fn(),
+    TextChannel: jest.fn(),
+    Message: jest.fn().mockImplementation(() => ({
+        member: {
+            voice: {
+                channel: {
+                    guild: {
+                        name: 'testing',
                     },
+                    name: 'daft-test',
                 },
-            };
-        }),
-    };
-});
+            },
+        },
+    })),
+}));
 
 jest.mock('./next');
+jest.mock('../permission');
 
 describe('_play configuration', () => {
     it('should have basic command infomation', () => {
@@ -54,6 +53,7 @@ describe('_play', () => {
 
     beforeEach(async () => {
         mocks.next.run.mockClear();
+        mocks.permission.mockClear();
 
         await db.song.create({
             data: {
@@ -93,6 +93,7 @@ describe('_play', () => {
 
     it('starts a new playlist', async () => {
         const message = new Message(client, {}, channel);
+        mocks.permission.mockReturnValue(true);
 
         await command.run(message, { _: ['foo'], $0: 'play' });
 
@@ -107,6 +108,7 @@ describe('_play', () => {
 
     it('will only play songs with all tags', async () => {
         const message = new Message(client, {}, channel);
+        mocks.permission.mockReturnValue(true);
 
         await command.run(message, { _: ['foo', 'bar'], $0: 'play' });
 
@@ -120,6 +122,7 @@ describe('_play', () => {
 
     it('will throw an error if no songs were found', async () => {
         const message = new Message(client, {}, channel);
+        mocks.permission.mockReturnValue(true);
 
         try {
             await command.run(message, { _: ['none'], $0: 'play' });
@@ -135,6 +138,7 @@ describe('_play', () => {
             return { member: { voice: { channe: null } } };
         });
         const message = new Message(client, {}, channel);
+        mocks.permission.mockReturnValue(true);
 
         try {
             await command.run(message, { _: [], $0: 'play' });
@@ -142,6 +146,19 @@ describe('_play', () => {
         } catch (err) {
             expect(err).toBeInstanceOf(FriendlyError);
             expect(err.message).toEqual('You are not in a voice channel');
+        }
+    });
+
+    it('will throw an error if does not have role', async () => {
+        const message = new Message(client, {}, channel);
+        mocks.permission.mockReturnValue(false);
+
+        try {
+            await command.run(message, { _: [], $0: 'play' });
+            fail('expected error to be thrown');
+        } catch (err) {
+            expect(err).toBeInstanceOf(FriendlyError);
+            expect(err.message).toEqual('You do not have permission to do that.');
         }
     });
 });

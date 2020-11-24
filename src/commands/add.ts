@@ -4,6 +4,7 @@ import { Arguments } from 'yargs';
 import db from '../db';
 import { FriendlyError } from '../error';
 import logger from '../logger';
+import { hasPermission } from '../permission';
 import player from '../player';
 import { Command } from '../types';
 
@@ -13,6 +14,10 @@ const command: Command = {
     usage: '[FILE] [...TAGS]',
     examples: ['counting-the-cost.webm dark menacing epic'],
     async run(message: Message, args: Arguments) {
+        if (!message.member || !hasPermission(message.member)) {
+            throw new FriendlyError('You do not have permission to do that.');
+        }
+
         const file = args._.shift()?.toString().replace(/^"|"$/, '');
         const tags = args._.map((t) => t.toString());
 
