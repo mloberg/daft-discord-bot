@@ -39,6 +39,7 @@ const command: Command = {
                     tags: {
                         create: tags.map((tag) => ({ tag })),
                     },
+                    guild: message.guild?.id,
                 },
             });
         } catch (err) {

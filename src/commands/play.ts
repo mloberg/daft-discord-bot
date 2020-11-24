@@ -31,6 +31,7 @@ const command: Command = {
         FROM songs S
         JOIN tags T ON T.song_id = S.id
         WHERE T.tag IN (${join(tags)})
+        AND (S.guild IS NULL OR S.guild = ${message.guild?.id})
         GROUP BY S.id
         HAVING COUNT(T.id) = ${tags.length}
         ORDER BY RANDOM()`;
