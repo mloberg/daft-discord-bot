@@ -13,8 +13,23 @@ env:
   IMAGE_PLATFORMS: linux/amd64,linux/arm/v7,linux/arm64
 
 jobs:
+  cancel:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.6.0
+        with:
+          access_token: ${{ github.token }}
   test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:13-alpine
+        env:
+          POSTGRES_PASSWORD: secret
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2.1.2
