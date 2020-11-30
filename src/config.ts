@@ -13,6 +13,9 @@ export const schema = joi
         BOT_PREFIX: joi.string().invalid('@').default('_'),
         BOT_TOKEN: joi.string().required(),
         DJ_ROLE: joi.string().default('daft-dj'),
+        HOST: joi.string().default('http://localhost'),
+        PORT: joi.number().default(53134),
+        SECRET: joi.string().min(16).required(),
     })
     .unknown()
     .required();
@@ -30,4 +33,7 @@ export default {
     prefix: env.BOT_PREFIX as string,
     token: env.BOT_TOKEN as string,
     djRole: env.DJ_ROLE as string,
+    host: env.HOST as string,
+    port: env.PORT as number,
+    secret: env.SECRET as string,
 };

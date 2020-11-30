@@ -1,6 +1,6 @@
 import { schema } from './config';
 
-const defaults = { BOT_TOKEN: 'xxx' };
+const defaults = { BOT_TOKEN: 'xxx', SECRET: 'xxxxxxxxxxxxxxxxxxxxx' };
 
 describe('env.NODE_ENV', () => {
     it('defaults to production', () => {
@@ -86,5 +86,13 @@ describe('env.BOT_PREFIX', () => {
 describe('env.BOT_TOKEN', () => {
     it('is required', () => {
         expect(schema.validate({}).error?.message).toEqual('"BOT_TOKEN" is required');
+    });
+});
+
+describe('env.SECRET', () => {
+    it('must be at least 16 characters', () => {
+        expect(schema.validate({ BOT_TOKEN: 'test', SECRET: 'foobar' }).error?.message).toEqual(
+            '"SECRET" length must be at least 16 characters long',
+        );
     });
 });
