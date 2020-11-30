@@ -5,6 +5,7 @@ import config from '../config';
 import { FriendlyError } from '../error';
 import { Command } from '../types';
 import add from './add';
+import manage from './manage';
 import next from './next';
 import pause from './pause';
 import ping from './ping';
@@ -76,6 +77,7 @@ const commands = new Commands();
 
 commands.register(help);
 commands.register(add);
+commands.register(manage);
 commands.register(next);
 commands.register(pause);
 commands.register(ping);
