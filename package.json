@@ -32,8 +32,9 @@
     "lodash": "^4.17.20",
     "nunjucks": "^3.2.2",
     "pino": "^6.7.0",
+    "prism-media": "^1.2.3",
     "yargs": "^16.1.1",
-    "ytdl-core-discord": "^1.2.4"
+    "ytdl-core": "^4.1.4"
   },
   "devDependencies": {
     "@prisma/cli": "^2.12.1",
