@@ -1,15 +1,13 @@
 FROM node:12-alpine
 
-RUN apk add --no-cache --virtual .build-deps \
-    build-base python3 \
-    && apk add --no-cache ffmpeg
-
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci
-
-RUN apk del .build-deps
+RUN apk add --no-cache --virtual .build-deps \
+        build-base python3 \
+    && apk add --no-cache ffmpeg \
+    && npm ci \
+    && apk del .build-deps
 
 COPY . .
 RUN npx prisma generate \
