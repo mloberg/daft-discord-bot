@@ -6,7 +6,7 @@ exports[`_help returns a list of all commands 1`] = `
     Array [
       Array [
         "Here is a list of available commands:",
-        "help, add, manage, next, pause, ping, play, playing, resume, stop, tag, volume",
+        "help, add, list, manage, next, pause, ping, play, playing, resume, stop, tag, volume",
         "Get more details with \\"_help [command]\\"",
       ],
       Object {
@@ -23,7 +23,7 @@ exports[`_help returns a list of all commands 1`] = `
             Array [
               Array [
                 "Here is a list of available commands:",
-                "help, add, manage, next, pause, ping, play, playing, resume, stop, tag, volume",
+                "help, add, list, manage, next, pause, ping, play, playing, resume, stop, tag, volume",
                 "Get more details with \\"_help [command]\\"",
               ],
               Object {
