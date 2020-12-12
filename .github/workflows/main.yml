@@ -77,7 +77,9 @@ jobs:
           # Use Docker `latest` tag convention
           [ "$VERSION" == "main" ] && VERSION=latest
 
-          echo IMAGE_ID=$IMAGE_ID
-          echo VERSION=$VERSION
-
-          docker buildx build --push --tag $IMAGE_ID:$VERSION --platform $IMAGE_PLATFORMS .
+          docker buildx build \
+            --tag $IMAGE_ID:$VERSION \
+            --platform $IMAGE_PLATFORMS \
+            --cache-from $IMAGE_ID:latest \
+            --progress plain \
+            --push .
