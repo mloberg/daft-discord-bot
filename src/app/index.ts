@@ -53,7 +53,7 @@ app.put(
         jwt.verify(token, config.secret);
 
         const id = Number(req.params.id);
-        const song = await db.song.findOne({
+        const song = await db.song.findUnique({
             where: { id },
             include: { tags: true },
         });

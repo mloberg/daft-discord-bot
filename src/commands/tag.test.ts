@@ -90,7 +90,7 @@ describe('_tag', () => {
         });
         expect(mocks.react).toBeCalledWith('🎵');
 
-        const song = await db.song.findOne({
+        const song = await db.song.findUnique({
             where: { location: 'test.mp3' },
             include: { tags: true },
         });

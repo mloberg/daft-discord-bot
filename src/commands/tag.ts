@@ -44,7 +44,7 @@ const command: Command = {
             throw new FriendlyError('Nothing is currently playing');
         }
 
-        const song = await db.song.findOne({
+        const song = await db.song.findUnique({
             where: { location: playing },
             include: { tags: true },
         });
