@@ -10,7 +10,6 @@ import command from './add';
 
 const mocks = {
     react: jest.fn(),
-    db: mocked(db, true),
     logError: mocked(logger.error),
     player: mocked(player),
     permission: mocked(hasPermission),
@@ -26,7 +25,6 @@ jest.mock('discord.js', () => ({
     })),
 }));
 
-jest.mock('../db');
 jest.mock('../logger');
 jest.mock('../player');
 jest.mock('../permission');
@@ -49,7 +47,6 @@ describe('_add', () => {
     beforeEach(() => {
         mocks.react.mockClear();
         mocks.react.mockReturnThis();
-        mocks.db.song.create.mockClear();
         mocks.logError.mockClear();
         mocks.player.supports.mockClear();
         mocks.player.getTitle.mockClear();
@@ -61,6 +58,12 @@ describe('_add', () => {
         message = new Message(client, {}, channel);
     });
 
+    afterEach(async () => {
+        await db.$executeRaw`DELETE FROM tags`;
+        await db.$executeRaw`DELETE FROM songs`;
+        await db.$disconnect();
+    });
+
     it('adds a file to the manager with a title', async () => {
         mocks.permission.mockReturnValue(true);
         mocks.player.supports.mockReturnValue(true);
@@ -69,15 +72,13 @@ describe('_add', () => {
         await command.run(message, { _: ['test.mp3', 'foo', 'bar'], $0: 'add' });
         expect(mocks.react).toBeCalledWith('🎵');
 
-        expect(mocks.db.song.create).toHaveBeenCalledTimes(1);
-        expect(mocks.db.song.create).toHaveBeenCalledWith({
-            data: {
-                title: 'Testing',
-                location: 'test.mp3',
-                tags: {
-                    create: [{ tag: 'foo' }, { tag: 'bar' }],
-                },
-            },
+        const songs = await db.song.findMany({ include: { tags: true } });
+        expect(songs).toHaveLength(1);
+        expect(songs[0]).toMatchObject({
+            location: 'test.mp3',
+            title: 'Testing',
+            guild: null,
+            tags: [{ tag: 'foo' }, { tag: 'bar' }],
         });
     });
 
@@ -89,15 +90,13 @@ describe('_add', () => {
         await command.run(message, { _: ['notitle.mp3', 'foo', 'bar'], $0: 'add' });
         expect(mocks.react).toBeCalledWith('🎵');
 
-        expect(mocks.db.song.create).toHaveBeenCalledTimes(1);
-        expect(mocks.db.song.create).toHaveBeenCalledWith({
-            data: {
-                title: null,
-                location: 'notitle.mp3',
-                tags: {
-                    create: [{ tag: 'foo' }, { tag: 'bar' }],
-                },
-            },
+        const songs = await db.song.findMany({ include: { tags: true } });
+        expect(songs).toHaveLength(1);
+        expect(songs[0]).toMatchObject({
+            location: 'notitle.mp3',
+            title: null,
+            guild: null,
+            tags: [{ tag: 'foo' }, { tag: 'bar' }],
         });
     });
 
@@ -139,8 +138,8 @@ describe('_add', () => {
     });
 
     it('will throw an error if cannot be added to database', async () => {
-        const dbErr = new Error('duplicate');
-        mocks.db.song.create.mockRejectedValue(dbErr);
+        await db.song.create({ data: { location: 'test.mp3' } });
+
         mocks.permission.mockReturnValue(true);
         mocks.player.supports.mockReturnValue(true);
         mocks.player.getTitle.mockResolvedValue(null);
@@ -150,7 +149,6 @@ describe('_add', () => {
             fail('expected error to be thrown');
         } catch (err) {
             expect(mocks.logError).toHaveBeenCalledTimes(1);
-            expect(mocks.logError).toHaveBeenCalledWith(dbErr);
             expect(err).toBeInstanceOf(FriendlyError);
             expect(err.message).toEqual('I was unable to add that song. Does it exist already?');
         }
