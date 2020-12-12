@@ -14,13 +14,11 @@ export default class LocalFile implements Player {
         const ext = extname(location);
 
         if ('.ogg' === ext) {
-            options.type = 'ogg/opus';
-            return connection.play(createReadStream(location), options);
+            return connection.play(createReadStream(location), { ...options, type: 'ogg/opus' });
         }
 
         if ('.webm' === ext) {
-            options.type = 'webm/opus';
-            return connection.play(createReadStream(location), options);
+            return connection.play(createReadStream(location), { ...options, type: 'webm/opus' });
         }
 
         return connection.play(location, options);
