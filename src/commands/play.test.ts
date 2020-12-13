@@ -4,6 +4,7 @@ import { mocked } from 'ts-jest/utils';
 import db from '../db';
 import { FriendlyError } from '../error';
 import { hasPermission } from '../permission';
+import Player from '../player';
 import playlist from '../playlist';
 import Next from './next';
 import command from './play';
@@ -11,6 +12,7 @@ import command from './play';
 const mocks = {
     next: mocked(Next),
     permission: mocked(hasPermission),
+    player: mocked(Player),
 };
 
 jest.mock('discord.js', () => ({
@@ -33,16 +35,17 @@ jest.mock('discord.js', () => ({
 
 jest.mock('./next');
 jest.mock('../permission');
+jest.mock('../player');
 
 describe('_play configuration', () => {
     it('should have basic command infomation', () => {
         expect(command.name).toEqual('play');
         expect(command.description).toEqual('Start a playlist');
-        expect(command.usage).toEqual('[...TAGS] [--volume|-v VOLUME]');
+        expect(command.usage).toEqual('...TAGS|SONG [--volume|-v VOLUME]');
     });
 
     it('should have an alias', () => {
-        expect(command.alias).toEqual(['start']);
+        expect(command.alias).toEqual(['start', 'playlist']);
     });
 });
 
@@ -54,6 +57,7 @@ describe('_play', () => {
     beforeEach(async () => {
         mocks.next.run.mockClear();
         mocks.permission.mockClear();
+        mocks.player.supports.mockClear();
 
         await db.song.create({
             data: {
@@ -102,6 +106,7 @@ describe('_play', () => {
         expect(songs).toContain('foo.mp3');
         expect(songs).toContain('test.mp3');
 
+        expect(mocks.player.supports).toHaveBeenCalledTimes(1);
         expect(mocks.next.run).toHaveBeenCalledTimes(1);
         expect(mocks.next.run).toHaveBeenCalledWith(message, { _: ['foo'], $0: 'play' });
     });
@@ -118,6 +123,31 @@ describe('_play', () => {
 
         expect(mocks.next.run).toHaveBeenCalledTimes(1);
         expect(mocks.next.run).toHaveBeenCalledWith(message, { _: ['foo', 'bar'], $0: 'play' });
+    });
+
+    it('supports passing songs directly', async () => {
+        const message = new Message(client, {}, channel);
+        mocks.permission.mockReturnValue(true);
+        mocks.player.supports.mockReturnValueOnce(true);
+
+        await command.run(message, { _: ['/song.mp3'], $0: 'play' });
+
+        const songs = playlist.queue('testing', 'daft-test');
+        expect(songs).toHaveLength(1);
+        expect(songs).toContain('/song.mp3');
+    });
+
+    it('will throw an error if no arguments given', async () => {
+        const message = new Message(client, {}, channel);
+        mocks.permission.mockReturnValue(true);
+
+        try {
+            await command.run(message, { _: [], $0: 'play' });
+            fail('expected error to be thrown');
+        } catch (err) {
+            expect(err).toBeInstanceOf(FriendlyError);
+            expect(err.message).toEqual('Please give me something to play.');
+        }
     });
 
     it('will throw an error if no songs were found', async () => {

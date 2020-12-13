@@ -158,8 +158,8 @@ exports[`_help returns the details for the play command 1`] = `
     Array [
       Array [
         "**play**: Start a playlist",
-        "*aliases*: start",
-        "*usage*: \`_play [...TAGS] [--volume|-v VOLUME]\`",
+        "*aliases*: start, playlist",
+        "*usage*: \`_play ...TAGS|SONG [--volume|-v VOLUME]\`",
       ],
       Object {
         "split": true,
@@ -175,8 +175,8 @@ exports[`_help returns the details for the play command 1`] = `
             Array [
               Array [
                 "**play**: Start a playlist",
-                "*aliases*: start",
-                "*usage*: \`_play [...TAGS] [--volume|-v VOLUME]\`",
+                "*aliases*: start, playlist",
+                "*usage*: \`_play ...TAGS|SONG [--volume|-v VOLUME]\`",
               ],
               Object {
                 "split": true,
