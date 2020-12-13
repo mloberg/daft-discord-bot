@@ -18,7 +18,7 @@
     "test": "DATABASE_URL=\"postgresql://postgres:secret@127.0.0.1/test\" BOT_TOKEN=test SECRET=xxxxtestingxxsecretxxxx jest --detectOpenHandles --coverage --verbose",
     "watch:test": "npm run test -- --watch",
     "lint": "eslint . --ext .ts --ext .js",
-    "fix": "npm run lint -- --fix"
+    "format": "npm run lint -- --fix"
   },
   "dependencies": {
     "@discordjs/opus": "^0.3.3",

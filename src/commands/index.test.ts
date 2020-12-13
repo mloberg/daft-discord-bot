@@ -7,20 +7,16 @@ const mocks = {
     send: jest.fn(),
 };
 
-jest.mock('discord.js', () => {
-    return {
-        Client: jest.fn(),
-        Guild: jest.fn(),
-        TextChannel: jest.fn(),
-        Message: jest.fn().mockImplementation(() => {
-            return {
-                channel: {
-                    send: mocks.send,
-                },
-            };
-        }),
-    };
-});
+jest.mock('discord.js', () => ({
+    Client: jest.fn(),
+    Guild: jest.fn(),
+    TextChannel: jest.fn(),
+    Message: jest.fn().mockImplementation(() => ({
+        channel: {
+            send: mocks.send,
+        },
+    })),
+}));
 
 describe('_help configuration', () => {
     it('should have basic command infomation', () => {
