@@ -34,7 +34,7 @@
     "pino": "^6.8.0",
     "prism-media": "^1.2.3",
     "yargs": "^16.2.0",
-    "ytdl-core": "^4.1.7"
+    "ytdl-core": "^4.2.0"
   },
   "devDependencies": {
     "@prisma/cli": "^2.13.0",
