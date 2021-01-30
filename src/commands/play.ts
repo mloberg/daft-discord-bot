@@ -1,4 +1,4 @@
-import { join } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { Message } from 'discord.js';
 import { partition } from 'lodash';
 import { Arguments } from 'yargs';
@@ -39,7 +39,7 @@ const command: Command = {
             SELECT S.location
             FROM songs S
             JOIN tags T ON T.song_id = S.id
-            WHERE T.tag IN (${join(tags)})
+            WHERE T.tag IN (${Prisma.join(tags)})
             AND (S.guild IS NULL OR S.guild = ${message.guild?.id})
             GROUP BY S.id
             HAVING COUNT(T.id) = ${tags.length}
