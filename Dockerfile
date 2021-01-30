@@ -1,17 +1,13 @@
-FROM node:14.15.3-alpine
+FROM node:14.15.4
 
 WORKDIR /app
 
 COPY package*.json ./
-RUN apk add --no-cache --virtual .build-deps \
-        build-base python3 \
-    && apk add --no-cache ffmpeg \
-    && npm ci \
-    && apk del .build-deps
+RUN npm ci
 
 COPY . .
 RUN npx prisma generate \
-    && npm run build \
+    npm run build \
     && npm prune --production \
     && rm -rf src tsconfig.json
 
