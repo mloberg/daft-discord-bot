@@ -2,6 +2,8 @@ FROM node:14.15.4
 
 WORKDIR /app
 
+ENV PRISMA_QUERY_ENGINE_BINARY /app/node_modules/prisma/query-engine-linux-arm-openssl-1.1.x
+
 COPY package*.json ./
 RUN npm ci
 
