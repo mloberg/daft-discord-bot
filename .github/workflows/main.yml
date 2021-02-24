@@ -88,6 +88,6 @@ jobs:
         with:
           push: true
           tags: ${{ steps.build_vars.outputs.image }}:${{ steps.build_vars.outputs.version }}
-          platforms: linux/amd64,linux/arm/v7,linux/arm64
+          platforms: linux/amd64,linux/arm64
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache,mode=max

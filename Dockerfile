@@ -2,11 +2,12 @@ FROM node:14.15.4
 
 WORKDIR /app
 
-COPY package*.json prisma ./
+COPY package*.json ./
 RUN npm ci
 
 COPY . .
-RUN npm run build \
+RUN npx prisma generate \
+    && npm run build \
     && npm prune --production \
     && rm -rf src tsconfig.json
 
