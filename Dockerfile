@@ -2,14 +2,11 @@ FROM node:14.15.4
 
 WORKDIR /app
 
-ENV PRISMA_QUERY_ENGINE_BINARY /app/node_modules/prisma/query-engine-linux-arm-openssl-1.1.x
-
-COPY package*.json ./
+COPY package*.json prisma ./
 RUN npm ci
 
 COPY . .
-RUN npx prisma generate \
-    npm run build \
+RUN npm run build \
     && npm prune --production \
     && rm -rf src tsconfig.json
 
