@@ -5,7 +5,7 @@ WORKDIR /app
 RUN apt-get update \
     && apt-get -y install --no-install-recommends ffmpeg \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
     && npm install -g npm
 
 COPY package*.json ./
