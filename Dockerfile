@@ -2,6 +2,12 @@ FROM node:14.15.4
 
 WORKDIR /app
 
+RUN apt-get update \
+    && apt-get -y install --no-install-recommends ffmpeg \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+    && npm install -g npm
+
 COPY package*.json ./
 RUN npm ci
 

@@ -7,3 +7,4 @@
 /music/
 /prisma/.env
 /prisma/*.db
+/.eslintcache
