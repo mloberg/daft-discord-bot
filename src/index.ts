@@ -1,5 +1,5 @@
 import { Client } from 'discord.js';
-import { escapeRegExp } from 'lodash';
+import { escapeRegExp, memoize } from 'lodash';
 import yargs from 'yargs';
 
 import commands from './commands';
@@ -9,6 +9,12 @@ import logger from './logger';
 import { ensureRole } from './permission';
 
 const client = new Client();
+const commandRegex = memoize((client: Client) => {
+    const prefix = `<@!?${client.user?.id}>|${escapeRegExp(config.prefix)}`;
+    const command = commands.all.map(escapeRegExp).join('|');
+
+    return new RegExp(`^(?:${prefix})\\s*(?<command>${command})(?:\\s+|$)(?<args>.*)`);
+});
 
 client.once('ready', () => {
     if (!client.user) {
@@ -34,20 +40,21 @@ client.on('guildCreate', async (guild) => {
 });
 
 client.on('message', async (message) => {
-    const prefixRegex = new RegExp(`^(<@!?${client.user?.id}>|${escapeRegExp(config.prefix)})\\s*`);
-    if (message.author.bot || !prefixRegex.test(message.content)) {
+    if (message.author.bot) {
         return;
     }
 
-    const [, matchedPrefix] = message.content.match(prefixRegex) ?? [];
-    const [commandName, ...args] = message.content.slice(matchedPrefix.length).trim().split(/ +/);
-    const parsed = yargs.help(false).parse(args.join(' '));
-    parsed.$0 = commandName;
-
+    const match = commandRegex(client).exec(message.content);
+    const { command: commandName = '', args } = match?.groups || {};
     const command = commands.get(commandName.toLowerCase());
+
     if (!command) {
         return;
     }
+
+    const parsed = yargs.help(false).parse(args);
+    parsed.$0 = commandName;
+    parsed._ = parsed._.map((arg) => arg.replace(/^['"]|['"]$/g, ''));
 
     logger.debug({
         guild: message.guild?.name,

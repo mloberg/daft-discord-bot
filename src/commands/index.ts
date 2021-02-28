@@ -20,16 +20,20 @@ import volume from './volume';
 export class Commands {
     private commands: Command[] = [];
 
+    get list(): string[] {
+        return this.commands.map((c) => c.name);
+    }
+
+    get all(): string[] {
+        return this.commands.flatMap((c) => [c.name, ...(c.alias || [])]);
+    }
+
     register(command: Command): void {
         this.commands.push(command);
     }
 
     get(name: string): Command | null {
         return this.commands.find((c) => c.name === name || (c.alias && c.alias.includes(name))) || null;
-    }
-
-    list(): string[] {
-        return this.commands.map((c) => c.name);
     }
 }
 
@@ -43,7 +47,7 @@ export const help: Command = {
             return message.channel.send(
                 [
                     'Here is a list of available commands:',
-                    commands.list().join(', '),
+                    commands.list.join(', '),
                     `Get more details with "${config.prefix}help [command]"`,
                 ],
                 { split: true },
