@@ -1,4 +1,4 @@
-import { Client, Guild, Message, TextChannel } from 'discord.js';
+import { Client, Message, TextChannel } from 'discord.js';
 
 import { FriendlyError } from '../error';
 import { Commands, help } from '.';
@@ -8,9 +8,6 @@ const mocks = {
 };
 
 jest.mock('discord.js', () => ({
-    Client: jest.fn(),
-    Guild: jest.fn(),
-    TextChannel: jest.fn(),
     Message: jest.fn().mockImplementation(() => ({
         channel: {
             send: mocks.send,
@@ -37,9 +34,8 @@ describe('_help', () => {
         mocks.send.mockClear();
         mocks.send.mockReturnThis();
 
-        const client = new Client();
-        const guild = new Guild(client, {});
-        const channel = new TextChannel(guild, {});
+        const client = {} as Client;
+        const channel = {} as TextChannel;
         message = new Message(client, {}, channel);
     });
 
@@ -72,10 +68,11 @@ describe('_help', () => {
 describe('Commands', () => {
     it('registers commands and their aliases', () => {
         const commands = new Commands();
-        expect(commands.list()).toHaveLength(0);
+        expect(commands.list).toHaveLength(0);
 
         commands.register(help);
-        expect(commands.list()).toHaveLength(1);
+        expect(commands.list).toHaveLength(1);
+        expect(commands.all).toHaveLength(2);
     });
 
     it('returns the correct command', () => {
