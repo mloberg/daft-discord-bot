@@ -4,20 +4,19 @@
   "homepage": "https://github.com/mloberg/daft-discord-bot",
   "private": true,
   "engines": {
-    "node": ">=14.0.0",
-    "npm": ">=7.4.0"
+    "node": ">=14.0.0"
   },
   "scripts": {
     "build": "tsc",
     "start": "node -r dotenv/config dist/index.js",
     "server": "node -r dotenv/config dist/app/index.js",
-    "watch": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Bot,App\" -c \"cyan.bold,green.bold,yellow.bold\" \"npm run watch:ts\" \"npm run watch:bot\" \"npm run watch:app\"",
-    "watch:ts": "tsc -w",
-    "watch:bot": "nodemon -w dist --exec \"npm run --silent start\"",
-    "watch:app": "nodemon -w dist --exec \"npm run --silent server\"",
+    "dev": "concurrently -k -c cyan.bold,green.bold,yellow.bold npm:build:watch npm:bot:watch npm:server:watch",
+    "build:watch": "npm run build -- --watch",
+    "bot:watch": "nodemon --delay 2.5 -w dist --exec \"npm run --silent start\"",
+    "server:watch": "nodemon --delay 2.5 -w dist --exec \"npm run --silent server\"",
     "pretest": "DATABASE_URL=\"postgresql://postgres:secret@127.0.0.1/test\" prisma db push --preview-feature --skip-generate --accept-data-loss",
     "test": "DATABASE_URL=\"postgresql://postgres:secret@127.0.0.1/test\" BOT_TOKEN=test SECRET=xxxxtestingxxsecretxxxx jest --detectOpenHandles --coverage --verbose",
-    "watch:test": "npm run test -- --watch",
+    "test:watch": "npm run test -- --watch",
     "lint": "eslint --cache .",
     "format": "npm run lint -- --fix"
   },

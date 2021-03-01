@@ -52,7 +52,7 @@ Here are some commands to get you started with Daft.
 ## Development
 
 Follow the instructions for running locally. Rebuild and restart the bot on file
-changes with `npm run watch`.
+changes with `npm run dev`.
 
 ## Contributing
 
