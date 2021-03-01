@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`_ping is a command 1`] = `
+Object {
+  "description": "Pong",
+  "name": "ping",
+  "run": [Function],
+}
+`;

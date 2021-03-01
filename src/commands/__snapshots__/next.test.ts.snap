@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`_next is a command 1`] = `
+Object {
+  "alias": Array [
+    "skip",
+  ],
+  "description": "Play the next song in the playlist",
+  "name": "next",
+  "run": [Function],
+  "usage": "[--volume|-v <volume>]",
+}
+`;

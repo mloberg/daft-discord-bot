@@ -1,4 +1,4 @@
-import { Client, Guild, Message, TextChannel } from 'discord.js';
+import { Client, Message, TextChannel } from 'discord.js';
 
 import command from './ping';
 
@@ -8,10 +8,6 @@ const mocks = {
 
 jest.mock('discord.js', () => {
     return {
-        Client: jest.fn(),
-        Guild: jest.fn(),
-        TextChannel: jest.fn(),
-        Collection: jest.fn(),
         Message: jest.fn().mockImplementation(() => {
             return {
                 react: mocks.react,
@@ -20,28 +16,20 @@ jest.mock('discord.js', () => {
     };
 });
 
-describe('_ping configuration', () => {
-    it('should have basic command infomation', () => {
-        expect(command.name).toEqual('ping');
-        expect(command.description).toEqual('Pong');
-    });
-
-    it('should have no aliases', () => {
-        expect(command.alias).toBeUndefined();
-    });
-});
-
 describe('_ping', () => {
     let message: Message;
 
     beforeEach(() => {
         mocks.react.mockClear();
-        mocks.react.mockReturnThis();
 
-        const client = new Client();
-        const guild = new Guild(client, {});
-        const channel = new TextChannel(guild, {});
+        const client = {} as Client;
+        const channel = {} as TextChannel;
         message = new Message(client, {}, channel);
+    });
+
+    it('is a command', () => {
+        expect(command.name).toBe('ping');
+        expect(command).toMatchSnapshot();
     });
 
     it('responds', async () => {

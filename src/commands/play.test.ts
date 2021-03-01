@@ -1,4 +1,4 @@
-import { Client, Guild, Message, TextChannel } from 'discord.js';
+import { Client, Message, TextChannel } from 'discord.js';
 import { mocked } from 'ts-jest/utils';
 
 import db from '../db';
@@ -16,16 +16,13 @@ const mocks = {
 };
 
 jest.mock('discord.js', () => ({
-    Client: jest.fn(),
-    Guild: jest.fn(),
-    TextChannel: jest.fn(),
     Message: jest.fn().mockImplementation(() => ({
         member: {
+            guild: {
+                id: 'testing',
+            },
             voice: {
                 channel: {
-                    guild: {
-                        name: 'testing',
-                    },
                     name: 'daft-test',
                 },
             },
@@ -37,22 +34,9 @@ jest.mock('./next');
 jest.mock('../permission');
 jest.mock('../player');
 
-describe('_play configuration', () => {
-    it('should have basic command infomation', () => {
-        expect(command.name).toEqual('play');
-        expect(command.description).toEqual('Start a playlist');
-        expect(command.usage).toEqual('...TAGS|SONG [--volume|-v VOLUME]');
-    });
-
-    it('should have an alias', () => {
-        expect(command.alias).toEqual(['start', 'playlist']);
-    });
-});
-
 describe('_play', () => {
-    const client = new Client();
-    const guild = new Guild(client, {});
-    const channel = new TextChannel(guild, {});
+    const client = {} as Client;
+    const channel = {} as TextChannel;
 
     beforeEach(async () => {
         mocks.next.run.mockClear();
@@ -63,6 +47,7 @@ describe('_play', () => {
             data: {
                 title: 'Foo',
                 location: 'foo.mp3',
+                guild: 'testing',
                 tags: {
                     create: [{ tag: 'foo' }],
                 },
@@ -72,6 +57,7 @@ describe('_play', () => {
             data: {
                 title: 'Bar',
                 location: 'bar.mp3',
+                guild: 'testing',
                 tags: {
                     create: [{ tag: 'bar' }],
                 },
@@ -81,6 +67,7 @@ describe('_play', () => {
             data: {
                 title: 'Test',
                 location: 'test.mp3',
+                guild: 'testing',
                 tags: {
                     create: [{ tag: 'foo' }, { tag: 'bar' }],
                 },
@@ -93,6 +80,11 @@ describe('_play', () => {
         await db.$executeRaw`DELETE FROM tags`;
         await db.$executeRaw`DELETE FROM songs`;
         await db.$disconnect();
+    });
+
+    it('is a command', () => {
+        expect(command.name).toBe('play');
+        expect(command).toMatchSnapshot();
     });
 
     it('starts a new playlist', async () => {
@@ -137,30 +129,13 @@ describe('_play', () => {
         expect(songs).toContain('/song.mp3');
     });
 
-    it('will throw an error if no arguments given', async () => {
-        const message = new Message(client, {}, channel);
-        mocks.permission.mockReturnValue(true);
-
-        try {
-            await command.run(message, { _: [], $0: 'play' });
-            fail('expected error to be thrown');
-        } catch (err) {
-            expect(err).toBeInstanceOf(FriendlyError);
-            expect(err.message).toEqual('Please give me something to play.');
-        }
-    });
-
     it('will throw an error if no songs were found', async () => {
         const message = new Message(client, {}, channel);
         mocks.permission.mockReturnValue(true);
 
-        try {
-            await command.run(message, { _: ['none'], $0: 'play' });
-            fail('expected error to be thrown');
-        } catch (err) {
-            expect(err).toBeInstanceOf(FriendlyError);
-            expect(err.message).toEqual('No songs matching "none" were found');
-        }
+        await expect(command.run(message, { _: ['none'], $0: 'play' })).rejects.toThrow(
+            new FriendlyError('No songs matching "none" were found.'),
+        );
     });
 
     it('will throw an error if not in a voice channel', async () => {
@@ -170,25 +145,17 @@ describe('_play', () => {
         const message = new Message(client, {}, channel);
         mocks.permission.mockReturnValue(true);
 
-        try {
-            await command.run(message, { _: [], $0: 'play' });
-            fail('expected error to be thrown');
-        } catch (err) {
-            expect(err).toBeInstanceOf(FriendlyError);
-            expect(err.message).toEqual('You are not in a voice channel');
-        }
+        await expect(command.run(message, { _: [], $0: 'play' })).rejects.toThrow(
+            new FriendlyError('You are not in a voice channel.'),
+        );
     });
 
     it('will throw an error if does not have role', async () => {
         const message = new Message(client, {}, channel);
         mocks.permission.mockReturnValue(false);
 
-        try {
-            await command.run(message, { _: [], $0: 'play' });
-            fail('expected error to be thrown');
-        } catch (err) {
-            expect(err).toBeInstanceOf(FriendlyError);
-            expect(err.message).toEqual('You do not have permission to do that.');
-        }
+        await expect(command.run(message, { _: [], $0: 'play' })).rejects.toThrow(
+            new FriendlyError('You do not have permission to do that.'),
+        );
     });
 });

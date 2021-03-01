@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`_pause is a command 1`] = `
+Object {
+  "description": "Pause the playlist",
+  "name": "pause",
+  "run": [Function],
+}
+`;

@@ -1,7 +1,5 @@
 import { Prisma } from '@prisma/client';
-import { Message } from 'discord.js';
 import { partition } from 'lodash';
-import { Arguments } from 'yargs';
 
 import db from '../db';
 import { FriendlyError } from '../error';
@@ -13,25 +11,21 @@ import next from './next';
 
 const command: Command = {
     name: 'play',
+    alias: ['start'],
     description: 'Start a playlist',
-    alias: ['start', 'playlist'],
-    usage: '...TAGS|SONG [--volume|-v VOLUME]',
-    async run(message: Message, args: Arguments) {
-        if (!message.member || !message.member.voice.channel) {
-            throw new FriendlyError('You are not in a voice channel');
-        }
-
-        if (!hasPermission(message.member)) {
+    usage: '<...tags|song> [--volume|-v <volume>]',
+    async run(message, args) {
+        if (!message.member || !hasPermission(message.member)) {
             throw new FriendlyError('You do not have permission to do that.');
         }
 
-        if (0 === args._.length) {
-            throw new FriendlyError('Please give me something to play.');
+        if (!message.member.voice.channel) {
+            throw new FriendlyError('You are not in a voice channel.');
         }
 
         const [songs, tags] = partition(args._, (arg) => player.supports(arg));
 
-        const guild = message.member.voice.channel.guild.name;
+        const guild = message.member.guild.id;
         const room = message.member.voice.channel.name;
 
         if (0 !== tags.length) {
@@ -40,12 +34,12 @@ const command: Command = {
             FROM songs S
             JOIN tags T ON T.song_id = S.id
             WHERE T.tag IN (${Prisma.join(tags)})
-            AND (S.guild IS NULL OR S.guild = ${message.guild?.id})
+            AND S.guild = ${guild}
             GROUP BY S.id
             HAVING COUNT(T.id) = ${tags.length}
             ORDER BY RANDOM()`;
             if (0 === results.length) {
-                throw new FriendlyError(`No songs matching "${tags.join(', ')}" were found`);
+                throw new FriendlyError(`No songs matching "${tags.join(', ')}" were found.`);
             }
 
             songs.push(...results.map((r) => r.location));

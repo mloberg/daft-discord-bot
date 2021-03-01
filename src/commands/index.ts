@@ -14,7 +14,6 @@ import play from './play';
 import playing from './playing';
 import resume from './resume';
 import stop from './stop';
-import tag from './tag';
 import volume from './volume';
 
 export class Commands {
@@ -41,7 +40,7 @@ export const help: Command = {
     name: 'help',
     description: 'Get help with commands',
     alias: ['commands'],
-    usage: '[COMMAND]',
+    usage: '[command]',
     async run(message: Message, args: Arguments): Promise<Message | Message[]> {
         if (!args._.length) {
             return message.channel.send(
@@ -91,7 +90,6 @@ commands.register(play);
 commands.register(playing);
 commands.register(resume);
 commands.register(stop);
-commands.register(tag);
 commands.register(volume);
 
 export default commands;

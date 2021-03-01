@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`_play is a command 1`] = `
+Object {
+  "alias": Array [
+    "start",
+  ],
+  "description": "Start a playlist",
+  "name": "play",
+  "run": [Function],
+  "usage": "<...tags|song> [--volume|-v <volume>]",
+}
+`;
