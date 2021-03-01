@@ -1,5 +1,3 @@
-import { Message } from 'discord.js';
-
 import db from '../db';
 import { FriendlyError } from '../error';
 import { hasPermission } from '../permission';
@@ -8,7 +6,7 @@ import { Command } from '../types';
 const command: Command = {
     name: 'list',
     description: 'Show available song tags',
-    async run(message: Message) {
+    async run(message) {
         if (!message.member || !hasPermission(message.member)) {
             throw new FriendlyError('You do not have permission to do that.');
         }
@@ -17,7 +15,7 @@ const command: Command = {
         SELECT T.tag, COUNT(T.id) as total
         FROM tags AS T
         INNER JOIN songs AS S ON T.song_id = S.id
-        WHERE S.guild IS NULL OR S.guild = ${message.guild?.id}
+        WHERE S.guild = ${message.member.guild.id}
         GROUP BY tag
         ORDER BY total DESC`;
         if (0 === results.length) {

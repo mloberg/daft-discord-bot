@@ -1,4 +1,4 @@
-import { Client, Guild, Message, TextChannel } from 'discord.js';
+import { Client, Message, TextChannel } from 'discord.js';
 import { mocked } from 'ts-jest/utils';
 
 import { FriendlyError } from '../error';
@@ -13,9 +13,6 @@ const mocks = {
 };
 
 jest.mock('discord.js', () => ({
-    Client: jest.fn(),
-    Guild: jest.fn(),
-    TextChannel: jest.fn(),
     Message: jest.fn().mockImplementation(() => ({
         member: {
             voice: {
@@ -34,28 +31,20 @@ jest.mock('discord.js', () => ({
 
 jest.mock('../permission');
 
-describe('_resume configuration', () => {
-    it('should have basic command infomation', () => {
-        expect(command.name).toEqual('resume');
-        expect(command.description).toEqual('Resume the playlist');
-    });
-
-    it('should have no aliases', () => {
-        expect(command.alias).toBeUndefined();
-    });
-});
-
 describe('_resume', () => {
-    const client = new Client();
-    const guild = new Guild(client, {});
-    const channel = new TextChannel(guild, {});
+    const client = {} as Client;
+    const channel = {} as TextChannel;
 
     beforeEach(() => {
         mocks.react.mockClear();
-        mocks.react.mockReturnThis();
         mocks.join.mockClear();
         mocks.resume.mockClear();
         mocks.permission.mockClear();
+    });
+
+    it('is a command', () => {
+        expect(command.name).toBe('resume');
+        expect(command).toMatchSnapshot();
     });
 
     it('resumes current song', async () => {
@@ -86,25 +75,17 @@ describe('_resume', () => {
         const message = new Message(client, {}, channel);
         mocks.permission.mockReturnValue(true);
 
-        try {
-            await command.run(message, { _: [], $0: 'resume' });
-            fail('expected error to be thrown');
-        } catch (err) {
-            expect(err).toBeInstanceOf(FriendlyError);
-            expect(err.message).toEqual('You are not in a voice channel');
-        }
+        await expect(command.run(message, { _: [], $0: 'resume' })).rejects.toThrow(
+            new FriendlyError('You are not in a voice channel.'),
+        );
     });
 
     it('will throw an error if does not have role', async () => {
         const message = new Message(client, {}, channel);
         mocks.permission.mockReturnValue(false);
 
-        try {
-            await command.run(message, { _: [], $0: 'resume' });
-            fail('expected error to be thrown');
-        } catch (err) {
-            expect(err).toBeInstanceOf(FriendlyError);
-            expect(err.message).toEqual('You do not have permission to do that.');
-        }
+        await expect(command.run(message, { _: [], $0: 'resume' })).rejects.toThrow(
+            new FriendlyError('You do not have permission to do that.'),
+        );
     });
 });

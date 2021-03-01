@@ -1,4 +1,3 @@
-import { Message } from 'discord.js';
 import jwt from 'jsonwebtoken';
 
 import config from '../config';
@@ -8,9 +7,9 @@ import { Command } from '../types';
 
 const command: Command = {
     name: 'manage',
-    description: 'Manage songs via web interface',
     alias: ['web'],
-    async run(message: Message) {
+    description: 'Manage songs via web interface',
+    async run(message) {
         if (!message.member || !hasPermission(message.member)) {
             throw new FriendlyError('You do not have permission to do that.');
         }

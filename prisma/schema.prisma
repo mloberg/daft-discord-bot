@@ -9,12 +9,13 @@ datasource db {
 
 model Song {
   id        Int      @id @default(autoincrement())
-  location  String   @unique
+  location  String
   title     String?
   createdAt DateTime @default(now())
   guild     String?
   tags      Tag[]
 
+  @@unique([location, guild])
   @@map("songs")
 }
 

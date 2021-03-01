@@ -1,6 +1,3 @@
-import { Message } from 'discord.js';
-import { Arguments } from 'yargs';
-
 import { FriendlyError } from '../error';
 import logger from '../logger';
 import { hasPermission } from '../permission';
@@ -10,19 +7,19 @@ import { Command } from '../types';
 
 const command: Command = {
     name: 'next',
-    description: 'Play the next song in the playlist',
     alias: ['skip'],
-    usage: '[--volume|-v VOLUME]',
-    async run(message: Message, args: Arguments) {
-        if (!message.member || !message.member.voice.channel) {
-            throw new FriendlyError('You are not in a voice channel');
-        }
-
-        if (!hasPermission(message.member)) {
+    description: 'Play the next song in the playlist',
+    usage: '[--volume|-v <volume>]',
+    async run(message, args) {
+        if (!message.member || !hasPermission(message.member)) {
             throw new FriendlyError('You do not have permission to do that.');
         }
 
-        const guild = message.member.voice.channel.guild.name;
+        if (!message.member.voice.channel) {
+            throw new FriendlyError('You are not in a voice channel.');
+        }
+
+        const guild = message.member.guild.id;
         const room = message.member.voice.channel.name;
 
         const connection = await message.member.voice.channel.join();

@@ -1,6 +1,3 @@
-import { Message } from 'discord.js';
-import { Arguments } from 'yargs';
-
 import db from '../db';
 import { FriendlyError } from '../error';
 import logger from '../logger';
@@ -11,35 +8,31 @@ import { Command } from '../types';
 const command: Command = {
     name: 'add',
     description: 'Add a song',
-    usage: '[FILE] [...TAGS]',
+    usage: '<file> [...tags]',
     examples: ['counting-the-cost.webm dark menacing epic'],
-    async run(message: Message, args: Arguments) {
+    async run(message, args) {
         if (!message.member || !hasPermission(message.member)) {
             throw new FriendlyError('You do not have permission to do that.');
         }
 
-        const file = args._.shift()?.toString().replace(/^"|"$/, '');
-        const tags = args._.map((t) => t.toString());
-
+        const [file, ...tags] = args._;
         if (!file || tags.length === 0) {
-            throw new FriendlyError('Invalid command usage: [song] [...tag]');
+            throw new FriendlyError('Invalid command usage: <song> [...tag]');
         }
 
         if (!player.supports(file)) {
             throw new FriendlyError('I was unable to add that. Unsupported type.');
         }
 
-        const title = await player.getTitle(file);
-
         try {
             await db.song.create({
                 data: {
-                    title,
+                    title: await player.getTitle(file),
                     location: file,
                     tags: {
                         create: tags.map((tag) => ({ tag })),
                     },
-                    guild: message.guild?.id,
+                    guild: message.member.guild.id,
                 },
             });
         } catch (err) {

@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`_volume is a command 1`] = `
+Object {
+  "description": "Set the playback volume",
+  "name": "volume",
+  "run": [Function],
+  "usage": "<volume>",
+}
+`;

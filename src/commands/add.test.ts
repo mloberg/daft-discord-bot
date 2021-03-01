@@ -1,4 +1,4 @@
-import { Client, Guild, Message, TextChannel } from 'discord.js';
+import { Client, Message, TextChannel } from 'discord.js';
 import { mocked } from 'ts-jest/utils';
 
 import db from '../db';
@@ -16,11 +16,8 @@ const mocks = {
 };
 
 jest.mock('discord.js', () => ({
-    Client: jest.fn(),
-    Guild: jest.fn(),
-    TextChannel: jest.fn(),
     Message: jest.fn().mockImplementation(() => ({
-        member: true,
+        member: { guild: { id: 'test' } },
         react: mocks.react,
     })),
 }));
@@ -29,32 +26,18 @@ jest.mock('../logger');
 jest.mock('../player');
 jest.mock('../permission');
 
-describe('_add configuration', () => {
-    it('should have basic command infomation', () => {
-        expect(command.name).toEqual('add');
-        expect(command.description).toEqual('Add a song');
-        expect(command.usage).toEqual('[FILE] [...TAGS]');
-    });
-
-    it('should have no aliases', () => {
-        expect(command.alias).toBeUndefined();
-    });
-});
-
 describe('_add', () => {
     let message: Message;
 
     beforeEach(() => {
         mocks.react.mockClear();
-        mocks.react.mockReturnThis();
         mocks.logError.mockClear();
         mocks.player.supports.mockClear();
         mocks.player.getTitle.mockClear();
         mocks.permission.mockClear();
 
-        const client = new Client();
-        const guild = new Guild(client, {});
-        const channel = new TextChannel(guild, {});
+        const client = {} as Client;
+        const channel = {} as TextChannel;
         message = new Message(client, {}, channel);
     });
 
@@ -62,6 +45,11 @@ describe('_add', () => {
         await db.$executeRaw`DELETE FROM tags`;
         await db.$executeRaw`DELETE FROM songs`;
         await db.$disconnect();
+    });
+
+    it('is a command', () => {
+        expect(command.name).toBe('add');
+        expect(command).toMatchSnapshot();
     });
 
     it('adds a file to the manager with a title', async () => {
@@ -77,7 +65,7 @@ describe('_add', () => {
         expect(songs[0]).toMatchObject({
             location: 'test.mp3',
             title: 'Testing',
-            guild: null,
+            guild: 'test',
             tags: [{ tag: 'foo' }, { tag: 'bar' }],
         });
     });
@@ -95,7 +83,7 @@ describe('_add', () => {
         expect(songs[0]).toMatchObject({
             location: 'notitle.mp3',
             title: null,
-            guild: null,
+            guild: 'test',
             tags: [{ tag: 'foo' }, { tag: 'bar' }],
         });
     });
@@ -103,66 +91,45 @@ describe('_add', () => {
     it('will throw an error if no file given', async () => {
         mocks.permission.mockReturnValue(true);
 
-        try {
-            await command.run(message, { _: [], $0: 'add' });
-            fail('expected error to be thrown');
-        } catch (err) {
-            expect(err).toBeInstanceOf(FriendlyError);
-            expect(err.message).toEqual('Invalid command usage: [song] [...tag]');
-        }
+        await expect(command.run(message, { _: [], $0: 'add' })).rejects.toThrow(
+            new FriendlyError('Invalid command usage: <song> [...tag]'),
+        );
     });
 
     it('will throw an error if no tags given', async () => {
         mocks.permission.mockReturnValue(true);
 
-        try {
-            await command.run(message, { _: ['test.mp3'], $0: 'add' });
-            fail('expected error to be thrown');
-        } catch (err) {
-            expect(err).toBeInstanceOf(FriendlyError);
-            expect(err.message).toEqual('Invalid command usage: [song] [...tag]');
-        }
+        await expect(command.run(message, { _: ['test.mp3'], $0: 'add' })).rejects.toThrow(
+            new FriendlyError('Invalid command usage: <song> [...tag]'),
+        );
     });
 
     it('will throw an error if file is unsupported', async () => {
         mocks.permission.mockReturnValue(true);
         mocks.player.supports.mockReturnValue(false);
 
-        try {
-            await command.run(message, { _: ['none.mp3', 'foo', 'bar'], $0: 'add' });
-            fail('expected error to be thrown');
-        } catch (err) {
-            expect(err).toBeInstanceOf(FriendlyError);
-            expect(err.message).toEqual('I was unable to add that. Unsupported type.');
-        }
+        await expect(command.run(message, { _: ['none.mp3', 'foo', 'bar'], $0: 'add' })).rejects.toThrow(
+            new FriendlyError('I was unable to add that. Unsupported type.'),
+        );
     });
 
     it('will throw an error if cannot be added to database', async () => {
-        await db.song.create({ data: { location: 'test.mp3' } });
+        await db.song.create({ data: { location: 'test.mp3', guild: 'test' } });
 
         mocks.permission.mockReturnValue(true);
         mocks.player.supports.mockReturnValue(true);
         mocks.player.getTitle.mockResolvedValue(null);
 
-        try {
-            await command.run(message, { _: ['test.mp3', 'foo', 'bar'], $0: 'add' });
-            fail('expected error to be thrown');
-        } catch (err) {
-            expect(mocks.logError).toHaveBeenCalledTimes(1);
-            expect(err).toBeInstanceOf(FriendlyError);
-            expect(err.message).toEqual('I was unable to add that song. Does it exist already?');
-        }
+        await expect(command.run(message, { _: ['test.mp3', 'foo', 'bar'], $0: 'add' })).rejects.toThrow(
+            new FriendlyError('I was unable to add that song. Does it exist already?'),
+        );
     });
 
     it('will throw an error if user does not have role', async () => {
         mocks.permission.mockReturnValue(false);
 
-        try {
-            await command.run(message, { _: ['test.mp3', 'foo', 'bar'], $0: 'add' });
-            fail('expected error to be thrown');
-        } catch (err) {
-            expect(err).toBeInstanceOf(FriendlyError);
-            expect(err.message).toEqual('You do not have permission to do that.');
-        }
+        await expect(command.run(message, { _: ['test.mp3', 'foo', 'bar'], $0: 'add' })).rejects.toThrow(
+            new FriendlyError('You do not have permission to do that.'),
+        );
     });
 });

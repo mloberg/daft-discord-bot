@@ -1,4 +1,4 @@
-import { Client, Guild, Message, TextChannel } from 'discord.js';
+import { Client, Message, TextChannel } from 'discord.js';
 import { mocked } from 'ts-jest/utils';
 
 import db from '../db';
@@ -11,16 +11,13 @@ const mocks = {
 };
 
 jest.mock('discord.js', () => ({
-    Client: jest.fn(),
-    Guild: jest.fn(),
-    TextChannel: jest.fn(),
     Message: jest.fn().mockImplementation(() => ({
         member: {
+            guild: {
+                id: 'testing',
+            },
             voice: {
                 channel: {
-                    guild: {
-                        name: 'testing',
-                    },
                     name: 'daft-test',
                 },
             },
@@ -29,28 +26,13 @@ jest.mock('discord.js', () => ({
     })),
 }));
 
-describe('_playing configuration', () => {
-    it('should have basic command infomation', () => {
-        expect(command.name).toEqual('playing');
-        expect(command.description).toEqual('Show the currently playing song');
-        expect(command.usage).toBeUndefined();
-    });
-
-    it('should have no aliases', () => {
-        expect(command.alias).toContain('now-playing');
-        expect(command.alias).toContain('nowPlaying');
-    });
-});
-
 describe('_playing', () => {
     let message: Message;
-    const client = new Client();
-    const guild = new Guild(client, {});
-    const channel = new TextChannel(guild, {});
+    const client = {} as Client;
+    const channel = {} as TextChannel;
 
     beforeEach(() => {
         mocks.reply.mockClear();
-        mocks.reply.mockReturnThis();
 
         message = new Message(client, {}, channel);
     });
@@ -62,11 +44,17 @@ describe('_playing', () => {
         await db.$disconnect();
     });
 
+    it('is a command', () => {
+        expect(command.name).toBe('playing');
+        expect(command).toMatchSnapshot();
+    });
+
     it('returns the title and tags of current song', async () => {
         await db.song.create({
             data: {
                 title: 'Testing',
                 location: 'test.mp3',
+                guild: 'testing',
                 tags: {
                     create: [{ tag: 'foo' }, { tag: 'bar' }],
                 },
@@ -79,27 +67,18 @@ describe('_playing', () => {
         expect(mocks.reply).toBeCalledWith('Testing - test.mp3 (*foo*, *bar*)');
     });
 
-    it('throws an error if no song is playing', async () => {
-        try {
-            await command.run(message, { _: [], $0: 'playing' });
-            fail('expected error to be thrown');
-        } catch (err) {
-            expect(err).toBeInstanceOf(FriendlyError);
-            expect(err.message).toEqual('Nothing is currently playing');
-        }
-    });
-
-    it('throws an error if no song is found in the database', async () => {
+    it('returns the song location if no additional information is known', async () => {
         playlist.create('testing', 'daft-test', ['test.mp3']);
         playlist.next('testing', 'daft-test');
 
-        try {
-            await command.run(message, { _: [], $0: 'playing' });
-            fail('expected error to be thrown');
-        } catch (err) {
-            expect(err).toBeInstanceOf(FriendlyError);
-            expect(err.message).toEqual('I was unable to find that song');
-        }
+        await command.run(message, { _: [], $0: 'playing' });
+        expect(mocks.reply).toBeCalledWith('test.mp3');
+    });
+
+    it('throws an error if no song is playing', async () => {
+        await expect(command.run(message, { _: [], $0: 'playing' })).rejects.toThrow(
+            new FriendlyError('Nothing is currently playing.'),
+        );
     });
 
     it('will throw an error if not in a voice channel', async () => {
@@ -108,12 +87,8 @@ describe('_playing', () => {
         });
         const message = new Message(client, {}, channel);
 
-        try {
-            await command.run(message, { _: [], $0: 'playing' });
-            fail('expected error to be thrown');
-        } catch (err) {
-            expect(err).toBeInstanceOf(FriendlyError);
-            expect(err.message).toEqual('You are not in a voice channel');
-        }
+        await expect(command.run(message, { _: [], $0: 'playing' })).rejects.toThrow(
+            new FriendlyError('You are not in a voice channel.'),
+        );
     });
 });

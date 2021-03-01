@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`_add is a command 1`] = `
+Object {
+  "description": "Add a song",
+  "examples": Array [
+    "counting-the-cost.webm dark menacing epic",
+  ],
+  "name": "add",
+  "run": [Function],
+  "usage": "<file> [...tags]",
+}
+`;

@@ -1,4 +1,4 @@
-import { Client, Guild, Message, TextChannel } from 'discord.js';
+import { Client, Message, TextChannel } from 'discord.js';
 import jwt from 'jsonwebtoken';
 import { mocked } from 'ts-jest/utils';
 
@@ -13,9 +13,6 @@ const mocks = {
 };
 
 jest.mock('discord.js', () => ({
-    Client: jest.fn(),
-    Guild: jest.fn(),
-    TextChannel: jest.fn(),
     Message: jest.fn().mockImplementation(() => ({
         member: {
             id: 'testuser',
@@ -32,18 +29,6 @@ jest.mock('discord.js', () => ({
 
 jest.mock('../permission');
 
-describe('_manage configuration', () => {
-    it('should have basic command infomation', () => {
-        expect(command.name).toEqual('manage');
-        expect(command.description).toEqual('Manage songs via web interface');
-        expect(command.usage).toBeUndefined();
-    });
-
-    it('should have a web alias', () => {
-        expect(command.alias).toContain('web');
-    });
-});
-
 describe('_manage', () => {
     let message: Message;
 
@@ -51,10 +36,14 @@ describe('_manage', () => {
         mocks.author.mockClear();
         mocks.permission.mockClear();
 
-        const client = new Client();
-        const guild = new Guild(client, {});
-        const channel = new TextChannel(guild, {});
+        const client = {} as Client;
+        const channel = {} as TextChannel;
         message = new Message(client, {}, channel);
+    });
+
+    it('is a command', () => {
+        expect(command.name).toBe('manage');
+        expect(command).toMatchSnapshot();
     });
 
     it('adds a file to the manager with a title', async () => {
@@ -74,12 +63,8 @@ describe('_manage', () => {
     it('will throw an error if user does not have role', async () => {
         mocks.permission.mockReturnValue(false);
 
-        try {
-            await command.run(message, { _: [], $0: 'web' });
-            fail('expected error to be thrown');
-        } catch (err) {
-            expect(err).toBeInstanceOf(FriendlyError);
-            expect(err.message).toEqual('You do not have permission to do that.');
-        }
+        await expect(command.run(message, { _: [], $0: 'web' })).rejects.toThrow(
+            new FriendlyError('You do not have permission to do that.'),
+        );
     });
 });
