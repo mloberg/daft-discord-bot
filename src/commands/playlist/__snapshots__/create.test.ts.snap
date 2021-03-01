@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`_playlist create is a command 1`] = `
+Object {
+  "alias": Array [
+    "playlist new",
+  ],
+  "description": "Create a new playlist",
+  "name": "playlist create",
+  "run": [Function],
+  "usage": "<name> [...songs]",
+}
+`;

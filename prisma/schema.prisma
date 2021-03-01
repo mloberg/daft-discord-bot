@@ -28,3 +28,14 @@ model Tag {
   @@unique([tag, songId], name: "song_tag")
   @@map("tags")
 }
+
+model Playlist {
+  id        Int      @id @default(autoincrement())
+  name      String
+  guild     String
+  songs     Json
+  createdAt DateTime @default(now())
+
+  @@unique([name, guild])
+  @@map("playlists")
+}
