@@ -18,7 +18,7 @@ exports[`_help returns a list of all commands 1`] = `
     Array [
       Array [
         "Here is a list of available commands:",
-        "help, add, list, manage, next, pause, ping, play, playing, resume, stop, volume",
+        "help, add, list, manage, next, pause, ping, play, playing, playlist add, playlist create, playlist list, playlist play, playlist delete, resume, stop, volume",
         "Get more details with \\"_help [command]\\"",
       ],
       Object {

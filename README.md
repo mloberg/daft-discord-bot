@@ -48,6 +48,10 @@ Here are some commands to get you started with Daft.
 * Stop playing: `_stop`
 * Skip song: `_next`
 * Manage songs: `_manage`
+* Create a playlist: `_playlist create <name> [...songs]`
+* Play a playlist: `_playlist play <name> [--shuffle]`
+* Append songs to a playlist: `_playlist add <name> [...songs]`
+* Delete a playlist: `_playlist delete <name>`
 
 ## Development
 
