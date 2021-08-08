@@ -43,7 +43,7 @@ jobs:
       - uses: docker/metadata-action@v3
         id: meta
         with:
-          image: ghcr.io/mloberg/daft-bot
+          images: ghcr.io/mloberg/daft-bot
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
