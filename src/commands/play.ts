@@ -1,7 +1,5 @@
-import { Prisma } from '@prisma/client';
 import { partition } from 'lodash';
 
-import db from '../db';
 import { FriendlyError } from '../error';
 import { hasPermission } from '../permission';
 import player from '../player';
@@ -13,7 +11,7 @@ const command: Command = {
     name: 'play',
     alias: ['start'],
     description: 'Start a playlist',
-    usage: '<...tags|song> [--volume|-v <volume>]',
+    usage: '<...song> [--volume|-v <volume>]',
     async run(message, args) {
         if (!message.member || !hasPermission(message.member)) {
             throw new FriendlyError('You do not have permission to do that.');
@@ -23,27 +21,13 @@ const command: Command = {
             throw new FriendlyError('You are not in a voice channel.');
         }
 
-        const [songs, tags] = partition(args._, (arg) => player.supports(arg));
+        const [songs, unsupported] = partition(args._, (arg) => player.supports(arg));
+        if (unsupported.length > 0) {
+            throw new FriendlyError(`I don't know how to play ${unsupported.map((u) => `_${u}_`).join(', ')}.`);
+        }
 
         const guild = message.member.guild.id;
         const room = message.member.voice.channel.name;
-
-        if (0 !== tags.length) {
-            const results: { location: string }[] = await db.$queryRaw`
-            SELECT S.location
-            FROM songs S
-            JOIN tags T ON T.song_id = S.id
-            WHERE T.tag IN (${Prisma.join(tags)})
-            AND S.guild = ${guild}
-            GROUP BY S.id
-            HAVING COUNT(T.id) = ${tags.length}
-            ORDER BY RANDOM()`;
-            if (0 === results.length) {
-                throw new FriendlyError(`No songs matching "${tags.join(', ')}" were found.`);
-            }
-
-            songs.push(...results.map((r) => r.location));
-        }
 
         playlist.clear(guild, room);
         playlist.create(guild, room, songs);

@@ -18,31 +18,8 @@ exports[`_help returns a list of all commands 1`] = `
     Array [
       Array [
         "Here is a list of available commands:",
-        "help, add, list, next, pause, ping, play, playing, playlist add, playlist create, playlist list, playlist play, playlist delete, resume, stop, volume",
+        "help, next, pause, ping, play, resume, stop, volume",
         "Get more details with \\"_help [command]\\"",
-      ],
-      Object {
-        "split": true,
-      },
-    ],
-  ],
-  "results": Array [
-    Object {
-      "type": "return",
-      "value": undefined,
-    },
-  ],
-}
-`;
-
-exports[`_help returns the details for the add command 1`] = `
-[MockFunction] {
-  "calls": Array [
-    Array [
-      Array [
-        "**add**: Add a song",
-        "*usage*: \`_add <file> [...tags]\`",
-        "*examples*: \`_add counting-the-cost.webm dark menacing epic\`",
       ],
       Object {
         "split": true,
@@ -109,7 +86,7 @@ exports[`_help returns the details for the play command 1`] = `
       Array [
         "**play**: Start a playlist",
         "*aliases*: start",
-        "*usage*: \`_play <...tags|song> [--volume|-v <volume>]\`",
+        "*usage*: \`_play <...song> [--volume|-v <volume>]\`",
       ],
       Object {
         "split": true,
