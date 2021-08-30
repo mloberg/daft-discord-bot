@@ -8,6 +8,6 @@ Object {
   "description": "Start a playlist",
   "name": "play",
   "run": [Function],
-  "usage": "<...tags|song> [--volume|-v <volume>]",
+  "usage": "<...song> [--volume|-v <volume>]",
 }
 `;

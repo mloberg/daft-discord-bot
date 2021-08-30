@@ -1,7 +1,6 @@
 import { Client, Message, TextChannel } from 'discord.js';
 import { mocked } from 'ts-jest/utils';
 
-import db from '../db';
 import { FriendlyError } from '../error';
 import { hasPermission } from '../permission';
 import Player from '../player';
@@ -38,83 +37,19 @@ describe('_play', () => {
     const client = {} as Client;
     const channel = {} as TextChannel;
 
-    beforeEach(async () => {
+    beforeEach(() => {
         mocks.next.run.mockClear();
         mocks.permission.mockClear();
         mocks.player.supports.mockClear();
-
-        await db.song.create({
-            data: {
-                title: 'Foo',
-                location: 'foo.mp3',
-                guild: 'testing',
-                tags: {
-                    create: [{ tag: 'foo' }],
-                },
-            },
-        });
-        await db.song.create({
-            data: {
-                title: 'Bar',
-                location: 'bar.mp3',
-                guild: 'testing',
-                tags: {
-                    create: [{ tag: 'bar' }],
-                },
-            },
-        });
-        await db.song.create({
-            data: {
-                title: 'Test',
-                location: 'test.mp3',
-                guild: 'testing',
-                tags: {
-                    create: [{ tag: 'foo' }, { tag: 'bar' }],
-                },
-            },
-        });
     });
 
-    afterEach(async () => {
+    afterEach(() => {
         playlist.clear('testing', 'daft-test');
-        await db.$executeRaw`DELETE FROM tags`;
-        await db.$executeRaw`DELETE FROM songs`;
-        await db.$disconnect();
     });
 
     it('is a command', () => {
         expect(command.name).toBe('play');
         expect(command).toMatchSnapshot();
-    });
-
-    it('starts a new playlist', async () => {
-        const message = new Message(client, {}, channel);
-        mocks.permission.mockReturnValue(true);
-
-        await command.run(message, { _: ['foo'], $0: 'play' });
-
-        const songs = playlist.queue('testing', 'daft-test');
-        expect(songs).toHaveLength(2);
-        expect(songs).toContain('foo.mp3');
-        expect(songs).toContain('test.mp3');
-
-        expect(mocks.player.supports).toHaveBeenCalledTimes(1);
-        expect(mocks.next.run).toHaveBeenCalledTimes(1);
-        expect(mocks.next.run).toHaveBeenCalledWith(message, { _: ['foo'], $0: 'play' });
-    });
-
-    it('will only play songs with all tags', async () => {
-        const message = new Message(client, {}, channel);
-        mocks.permission.mockReturnValue(true);
-
-        await command.run(message, { _: ['foo', 'bar'], $0: 'play' });
-
-        const songs = playlist.queue('testing', 'daft-test');
-        expect(songs).toHaveLength(1);
-        expect(songs).toContain('test.mp3');
-
-        expect(mocks.next.run).toHaveBeenCalledTimes(1);
-        expect(mocks.next.run).toHaveBeenCalledWith(message, { _: ['foo', 'bar'], $0: 'play' });
     });
 
     it('supports passing songs directly', async () => {
@@ -133,8 +68,8 @@ describe('_play', () => {
         const message = new Message(client, {}, channel);
         mocks.permission.mockReturnValue(true);
 
-        await expect(command.run(message, { _: ['none'], $0: 'play' })).rejects.toThrow(
-            new FriendlyError('No songs matching "none" were found.'),
+        await expect(command.run(message, { _: ['none', 'test'], $0: 'play' })).rejects.toThrow(
+            new FriendlyError("I don't know how to play _none_, _test_."),
         );
     });
 
