@@ -1,89 +1,62 @@
-import { Client } from 'discord.js';
-import { escapeRegExp, memoize } from 'lodash';
-import yargs from 'yargs';
+import { Client, Intents } from 'discord.js';
 
 import commands from './commands';
 import config from './config';
 import { FriendlyError } from './error';
 import logger from './logger';
-import { ensureRole } from './permission';
 
-const client = new Client();
-const commandRegex = memoize((client: Client) => {
-    const prefix = `<@!?${client.user?.id}>|${escapeRegExp(config.prefix)}`;
-    const command = commands.all.map(escapeRegExp).join('|');
-
-    return new RegExp(`^(?:${prefix})\\s*(?<command>${command})(?:\\s+|$)(?<args>.*)`);
+const client = new Client({
+    intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_VOICE_STATES],
 });
 
 client.once('ready', () => {
-    if (!client.user) {
-        return;
-    }
+    client.user?.setActivity('🎵');
 
-    client.guilds.cache.forEach(async (guild) => {
-        await ensureRole(guild);
-    });
-
-    client.user.setActivity(`Music | ${config.prefix}help`);
     logger.info(
         {
-            username: `${client.user.username}#${client.user.discriminator} (${client.user.id})`,
-            prefix: config.prefix,
+            id: client.user?.id,
+            username: client.user?.username,
+            discriminator: client.user?.discriminator,
         },
-        'Client ready',
+        'Bot ready',
     );
 });
 
-client.on('guildCreate', async (guild) => {
-    await ensureRole(guild);
-});
-
-client.on('message', async (message) => {
-    if (message.author.bot) {
+client.on('interactionCreate', async (interaction) => {
+    if (!interaction.isCommand()) {
         return;
     }
 
-    const match = commandRegex(client).exec(message.content);
-    const { command: commandName = '', args } = match?.groups || {};
-    const command = commands.get(commandName.toLowerCase());
+    logger.debug({ id: interaction.commandId, command: interaction.commandName, channel: interaction.channelId });
 
+    const command = commands.get(interaction.commandName);
     if (!command) {
         return;
     }
 
-    const parsed = yargs.help(false).parse(args);
-    parsed.$0 = commandName;
-    parsed._ = parsed._.map((arg) => arg.replace(/^['"]|['"]$/g, ''));
-
-    logger.debug({
-        guild: message.guild?.name,
-        channel: message.channel.toString(),
-        message: message.content,
-        command: commandName,
-        args: parsed,
-    });
-
     try {
-        await command.run(message, parsed);
-    } catch (err) {
-        if (err instanceof FriendlyError) {
-            return message.reply(err.message);
+        await command.handle(interaction);
+        if (!interaction.replied && !interaction.deferred) {
+            await interaction.reply(':white_check_mark:');
         }
+    } catch (error) {
+        const content = error instanceof FriendlyError ? error.message : 'An unknown error occurred.';
+        interaction.deferred
+            ? await interaction.followUp({ content, ephemeral: true })
+            : await interaction.reply({ content, ephemeral: true });
 
-        message.reply('That broke me. Check my logs for details.');
-        logger.error(err);
+        logger.error(error);
     }
 });
 
 process.on('unhandledRejection', (reason) => {
-    //.throw it and let our exception handler deal with it
+    // throw it and let our exception handler deal with it
     throw reason;
 });
 
-process.on('uncaughtException', (err: Error) => {
-    logger.error(err);
-    process.exit(1);
+process.on('uncaughtException', (error: Error) => {
+    logger.fatal(error);
+    process.exit(1); // eslint-disable-line no-process-exit
 });
 
 if (config.env !== 'test') {

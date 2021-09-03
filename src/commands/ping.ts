@@ -1,11 +1,9 @@
-import { Command } from '../types';
+import { SlashCommandBuilder } from '@discordjs/builders';
+import { CommandInteraction } from 'discord.js';
 
-const command: Command = {
-    name: 'ping',
-    description: 'Pong',
-    async run(message) {
-        return message.react('👍');
+export default {
+    config: new SlashCommandBuilder().setName('ping').setDescription('Check if bot is online and responding'),
+    async handle(command: CommandInteraction): Promise<void> {
+        await command.reply('🏓');
     },
 };
-
-export default command;

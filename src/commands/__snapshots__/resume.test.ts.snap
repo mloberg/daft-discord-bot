@@ -1,9 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`_resume is a command 1`] = `
-Object {
-  "description": "Resume the playlist",
-  "name": "resume",
-  "run": [Function],
-}
-`;

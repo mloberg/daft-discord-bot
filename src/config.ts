@@ -3,19 +3,13 @@ import { LevelWithSilent } from 'pino';
 
 export const schema = joi
     .object({
-        NODE_ENV: joi.string().lowercase().valid('development', 'test', 'production').default('production'),
-        LOG_LEVEL: joi
-            .string()
-            .valid('fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent')
-            .lowercase()
-            .default('info'),
         APP_DEBUG: joi.boolean().default(false),
-        BOT_PREFIX: joi.string().invalid('@').default('_'),
         BOT_TOKEN: joi.string().required(),
+        CLIENT_ID: joi.string(),
         DJ_ROLE: joi.string().default('daft-dj'),
-        HOST: joi.string().default('http://localhost'),
-        PORT: joi.number().default(53134),
-        SECRET: joi.string().min(16).required(),
+        GUILD_ID: joi.string().allow(''),
+        LOG_LEVEL: joi.string().valid('fatal', 'error', 'warn', 'info', 'debug', 'silent').lowercase().default('info'),
+        NODE_ENV: joi.string().lowercase().valid('development', 'test', 'production').default('production'),
     })
     .unknown()
     .required();
@@ -26,14 +20,12 @@ if (error) {
 }
 
 export default {
-    isTest: env.NODE_ENV === 'test',
-    env: env.NODE_ENV as 'development' | 'test' | 'production',
-    logLevel: env.LOG_LEVEL as LevelWithSilent,
+    clientID: env.CLIENT_ID as string | undefined,
     debug: env.APP_DEBUG as boolean,
-    prefix: env.BOT_PREFIX as string,
-    token: env.BOT_TOKEN as string,
     djRole: env.DJ_ROLE as string,
-    host: env.HOST as string,
-    port: env.PORT as number,
-    secret: env.SECRET as string,
+    env: env.NODE_ENV as 'development' | 'test' | 'production',
+    guildID: env.GUILD_ID as string | undefined,
+    isTest: env.NODE_ENV === 'test',
+    logLevel: env.LOG_LEVEL as LevelWithSilent,
+    token: env.BOT_TOKEN as string,
 };

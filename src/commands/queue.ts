@@ -1,14 +1,13 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
+import { AudioPlayerStatus, AudioResource } from '@discordjs/voice';
 import { CommandInteraction, GuildMember } from 'discord.js';
 
 import { FriendlyError } from '../error';
 import playlists from '../playlist';
+import { Track } from '../types';
 
 export default {
-    config: new SlashCommandBuilder()
-        .setName('resume')
-        .setDescription('Resume playback of current song')
-        .setDefaultPermission(false),
+    config: new SlashCommandBuilder().setName('queue').setDescription('See song queue'),
     async handle(command: CommandInteraction): Promise<void> {
         if (!(command.member instanceof GuildMember)) {
             throw new FriendlyError('You do not have permission to do that.');
@@ -24,7 +23,17 @@ export default {
             throw new FriendlyError('Nothing playing in this guild.');
         }
 
-        playlist.player.unpause();
-        await command.reply({ content: 'Resumed', ephemeral: true });
+        const current =
+            playlist.player.state.status === AudioPlayerStatus.Idle
+                ? 'Nothing is currently playing.'
+                : `Playing **${await (playlist.player.state.resource as AudioResource<Track>).metadata.getTitle()}**`;
+
+        const queue = (
+            await Promise.all(
+                playlist.queue.slice(0, 5).map(async (track, index) => `${index + 1}) ${await track.getTitle()}`),
+            )
+        ).join('\n');
+
+        await command.reply(`${current}\n\n${queue}`);
     },
 };
