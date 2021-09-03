@@ -91,7 +91,7 @@ class API {
             }
         }
     } catch (error) {
-        logger.fatal(error);
+        logger.fatal(error as Error);
         process.exit(1);
     }
 })();
