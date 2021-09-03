@@ -1,5 +1,8 @@
 # Daft - Discord Music Bot
 
+__Rewrite in progress__! This documentation is out of date while we work on rewriting
+this bot.
+
 Daft is a music bot for Discord designed for my D&D games. It allows me to play
 music randonly by tags or single songs.
 
