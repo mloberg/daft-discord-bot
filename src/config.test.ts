@@ -1,6 +1,6 @@
 import { schema } from './config';
 
-const defaults = { BOT_TOKEN: 'xxx', SECRET: 'xxxxxxxxxxxxxxxxxxxxx' };
+const defaults = { BOT_TOKEN: 'xxx' };
 
 describe('env.NODE_ENV', () => {
     it('defaults to production', () => {
@@ -41,7 +41,7 @@ describe('env.LOG_LEVEL', () => {
 
     it('returns an error on invalid level', () => {
         expect(schema.validate({ LOG_LEVEL: 'foo', ...defaults }).error?.message).toEqual(
-            '"LOG_LEVEL" must be one of [fatal, error, warn, info, debug, trace, silent]',
+            '"LOG_LEVEL" must be one of [fatal, error, warn, info, debug, silent]',
         );
     });
 });
@@ -68,31 +68,8 @@ describe('env.DEBUG', () => {
     });
 });
 
-describe('env.BOT_PREFIX', () => {
-    it('defaults to _', () => {
-        const { error, value } = schema.validate(defaults);
-
-        expect(error).toBeFalsy();
-        expect(value.BOT_PREFIX).toEqual('_');
-    });
-
-    it('can not be @', () => {
-        expect(schema.validate({ BOT_PREFIX: '@', ...defaults }).error?.message).toEqual(
-            '"BOT_PREFIX" contains an invalid value',
-        );
-    });
-});
-
 describe('env.BOT_TOKEN', () => {
     it('is required', () => {
         expect(schema.validate({}).error?.message).toEqual('"BOT_TOKEN" is required');
-    });
-});
-
-describe('env.SECRET', () => {
-    it('must be at least 16 characters', () => {
-        expect(schema.validate({ BOT_TOKEN: 'test', SECRET: 'foobar' }).error?.message).toEqual(
-            '"SECRET" length must be at least 16 characters long',
-        );
     });
 });

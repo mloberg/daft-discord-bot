@@ -1,9 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`_stop is a command 1`] = `
-Object {
-  "description": "Stop the playlist",
-  "name": "stop",
-  "run": [Function],
-}
-`;

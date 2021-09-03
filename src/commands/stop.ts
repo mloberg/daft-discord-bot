@@ -1,23 +1,30 @@
-import { FriendlyError } from '../error';
-import { hasPermission } from '../permission';
-import { Command } from '../types';
+import { SlashCommandBuilder } from '@discordjs/builders';
+import { CommandInteraction, GuildMember } from 'discord.js';
 
-const command: Command = {
-    name: 'stop',
-    description: 'Stop the playlist',
-    async run(message) {
-        if (!message.member || !hasPermission(message.member)) {
+import { FriendlyError } from '../error';
+import playlists from '../playlist';
+
+export default {
+    config: new SlashCommandBuilder()
+        .setName('stop')
+        .setDescription('Stop the playlist and leave the voice channel')
+        .setDefaultPermission(false),
+    async handle(command: CommandInteraction): Promise<void> {
+        if (!(command.member instanceof GuildMember)) {
             throw new FriendlyError('You do not have permission to do that.');
         }
 
-        if (!message.member.voice.channel) {
-            throw new FriendlyError('You are not in a voice channel.');
+        const channel = command.member.voice.channel;
+        if (!channel) {
+            throw new FriendlyError('Join a voice channel and then try that again!');
         }
 
-        message.member.voice.channel.leave();
+        const playlist = playlists.get(channel);
+        if (!playlist) {
+            throw new FriendlyError('Nothing playing in this guild.');
+        }
 
-        return message.react('🎶');
+        playlist.connection.destroy();
+        await command.reply('Stopping');
     },
 };
-
-export default command;

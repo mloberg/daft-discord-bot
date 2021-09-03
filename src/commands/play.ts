@@ -1,39 +1,42 @@
-import { partition } from 'lodash';
+import { SlashCommandBuilder } from '@discordjs/builders';
+import { entersState, VoiceConnectionStatus } from '@discordjs/voice';
+import { CommandInteraction, GuildMember } from 'discord.js';
 
 import { FriendlyError } from '../error';
-import { hasPermission } from '../permission';
-import player from '../player';
-import playlist from '../playlist';
-import { Command } from '../types';
-import next from './next';
+import playlists from '../playlist';
+import track from '../track';
 
-const command: Command = {
-    name: 'play',
-    alias: ['start'],
-    description: 'Start a playlist',
-    usage: '<...song> [--volume|-v <volume>]',
-    async run(message, args) {
-        if (!message.member || !hasPermission(message.member)) {
+export default {
+    config: new SlashCommandBuilder()
+        .setName('play')
+        .setDescription('Start a playlist in your current voice channel')
+        .setDefaultPermission(false)
+        .addStringOption((option) =>
+            option.setName('songs').setDescription('List of songs to play seperated by spaces').setRequired(true),
+        ),
+    async handle(command: CommandInteraction): Promise<void> {
+        if (!(command.member instanceof GuildMember)) {
             throw new FriendlyError('You do not have permission to do that.');
         }
 
-        if (!message.member.voice.channel) {
-            throw new FriendlyError('You are not in a voice channel.');
+        const channel = command.member.voice.channel;
+        if (!channel) {
+            throw new FriendlyError('Join a voice channel and then try that again!');
         }
 
-        const [songs, unsupported] = partition(args._, (arg) => player.supports(arg));
-        if (unsupported.length > 0) {
-            throw new FriendlyError(`I don't know how to play ${unsupported.map((u) => `_${u}_`).join(', ')}.`);
+        const playlist = playlists.connect(channel);
+        try {
+            await entersState(playlist.connection, VoiceConnectionStatus.Ready, 20_000);
+        } catch (error) {
+            throw new FriendlyError('Failed to join voice channel.');
         }
 
-        const guild = message.member.guild.id;
-        const room = message.member.voice.channel.name;
+        command.options
+            .getString('songs', true)
+            .split(' ')
+            .map(track)
+            .forEach((track) => playlist.enqueue(track));
 
-        playlist.clear(guild, room);
-        playlist.create(guild, room, songs);
-
-        return await next.run(message, args);
+        await command.reply('Playing');
     },
 };
-
-export default command;
