@@ -5,7 +5,7 @@
   "private": true,
   "engines": {
     "node": "^16.0.0",
-    "npm": "^7.4.0"
+    "npm": "^7.4.0 || ^8.0.0"
   },
   "scripts": {
     "start": "node dist/index.js",
@@ -20,7 +20,7 @@
     "test:watch": "npm run test -- --watch"
   },
   "dependencies": {
-    "@discordjs/builders": "^0.6.0",
+    "@discordjs/builders": "^0.7.0",
     "@discordjs/opus": "^0.6.0",
     "@discordjs/rest": "^0.1.0-canary.0",
     "@discordjs/voice": "^0.6.0",
@@ -40,10 +40,10 @@
     "@types/lodash": "^4.14.175",
     "@types/node": "^16.7.10",
     "@types/pino": "^6.3.11",
-    "@typescript-eslint/eslint-plugin": "^4.33.0",
-    "@typescript-eslint/parser": "^4.33.0",
+    "@typescript-eslint/eslint-plugin": "^5.1.0",
+    "@typescript-eslint/parser": "^5.1.0",
     "concurrently": "^6.3.0",
-    "eslint": "^7.32.0",
+    "eslint": "^8.0.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
