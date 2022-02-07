@@ -1,0 +1,22 @@
+linters:
+  enable:
+    - gofmt
+    - revive
+    - gocyclo
+    - misspell
+    - whitespace
+    - goimports
+    - gofmt
+    - gosec
+
+linters-settings:
+  gocyclo:
+    min-complexity: 8
+  goimports:
+    local-prefixes: github.com/mloberg/daft-discord-bot
+  gosimple:
+    go: "1.17"
+  staticcheck:
+    go: "1.17"
+  unused:
+    go: "1.17"

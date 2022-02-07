@@ -1,8 +1,0 @@
-*
-!dist
-!prisma
-!src
-!views
-prisma/*.db
-!package*.json
-!tsconfig.json
