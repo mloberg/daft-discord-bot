@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -34,7 +33,7 @@ var (
 		RunE: func(cmd *cobra.Command, args []string) error {
 			dg.AddHandler(slash.Handler())
 			dg.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
-				fmt.Println("Bot is up!")
+				log.Info().Msg("Bot is running")
 				if err := s.UpdateGameStatus(0, "🎶 music 🎶"); err != nil {
 					log.Error().Err(err).Msg("Could not set bot status")
 				}
