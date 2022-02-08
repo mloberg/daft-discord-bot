@@ -26,7 +26,15 @@ func (m *Commander) AddCommand(c *Command) {
 
 // Handler handles interaction create events from Discord
 func (m *Commander) Handler(s *discordgo.Session, i *discordgo.InteractionCreate) {
-	if c, ok := m.commands[i.ApplicationCommandData().Name]; ok {
+	name := i.ApplicationCommandData().Name
+	log.Debug().
+		Str("command", name).
+		Str("guild", i.GuildID).
+		Str("channel", i.ChannelID).
+		Str("user", GetUser(i).String()).
+		Msg("Interaction created")
+
+	if c, ok := m.commands[name]; ok {
 		if err := c.Run(s, i); err != nil {
 			err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
@@ -35,7 +43,7 @@ func (m *Commander) Handler(s *discordgo.Session, i *discordgo.InteractionCreate
 				},
 			})
 			if err != nil {
-				log.Error().Err(err).Str("command", c.Name).Msg("Could not respond to interaction")
+				log.Error().Err(err).Str("command", name).Msg("Could not respond to interaction")
 			}
 		}
 	}

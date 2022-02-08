@@ -6,6 +6,7 @@ import (
 	"syscall"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 
@@ -14,11 +15,17 @@ import (
 
 var (
 	dg      *discordgo.Session
+	verbose bool
 	intents = discordgo.IntentsGuilds | discordgo.IntentsGuildMessages | discordgo.IntentsGuildVoiceStates
 	rootCmd = &cobra.Command{
 		Use:   "daft",
 		Short: "Start Discord bot",
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			zerolog.SetGlobalLevel(zerolog.InfoLevel)
+			if verbose {
+				zerolog.SetGlobalLevel(zerolog.DebugLevel)
+			}
+
 			token, err := cmd.Flags().GetString("token")
 			if err != nil {
 				return err
@@ -55,6 +62,7 @@ var (
 
 func init() {
 	rootCmd.PersistentFlags().StringP("token", "t", os.Getenv("BOT_TOKEN"), "Discord Bot Token")
+	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
 }
 
 func Execute() error {
