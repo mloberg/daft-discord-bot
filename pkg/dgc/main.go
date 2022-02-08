@@ -40,6 +40,7 @@ func (m *Commander) Handler(s *discordgo.Session, i *discordgo.InteractionCreate
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: fmt.Sprintf("An error occurred: %v", err),
+					Flags:   InteractionResponseEphemeral,
 				},
 			})
 			if err != nil {
