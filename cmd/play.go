@@ -16,7 +16,7 @@ var (
 	players = map[string]*player.Player{}
 	playCmd = &dgc.Command{
 		Name:        "play",
-		Description: "play some music",
+		Description: "Play some music",
 		Options: []*discordgo.ApplicationCommandOption{
 			{
 				Type:        discordgo.ApplicationCommandOptionString,
@@ -26,6 +26,10 @@ var (
 			},
 		},
 		Run: func(s *discordgo.Session, i *discordgo.InteractionCreate) error {
+			if i.GuildID == "" {
+				return fmt.Errorf("cannot start music from a DM")
+			}
+
 			if players[i.GuildID] != nil {
 				return fmt.Errorf("already playing in this guild")
 			}
