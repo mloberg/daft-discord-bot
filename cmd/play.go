@@ -26,7 +26,7 @@ var (
 			},
 		},
 		Run: func(s *discordgo.Session, i *discordgo.InteractionCreate) error {
-			if _, ok := players[i.GuildID]; ok {
+			if players[i.GuildID] != nil {
 				return fmt.Errorf("already playing in this guild")
 			}
 
