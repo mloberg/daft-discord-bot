@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/rs/zerolog/log"
 
 	"github.com/mloberg/daft-discord-bot/internal/player"
 	"github.com/mloberg/daft-discord-bot/pkg/dgc"
@@ -58,7 +59,9 @@ var (
 
 			players[i.GuildID] = player.NewPlayer(songs)
 			go func() {
-				players[i.GuildID].Play(vc) //nolint:errcheck
+				if err := players[vc.GuildID].Play(vc); err != nil {
+					log.Error().Err(err).Str("guild", vc.GuildID).Msg("")
+				}
 				players[i.GuildID] = nil
 			}()
 
