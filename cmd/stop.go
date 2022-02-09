@@ -23,6 +23,7 @@ var stopCmd = &dgc.Command{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
 				Content: "Playlist stopped",
+				Flags:   dgc.InteractionResponseEphemeral,
 			},
 		})
 	},

@@ -66,6 +66,7 @@ var (
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: fmt.Sprintf("Started playlist %s", name),
+					Flags:   dgc.InteractionResponseEphemeral,
 				},
 			})
 		},
