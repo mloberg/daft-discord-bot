@@ -23,6 +23,7 @@ var nextCmd = &dgc.Command{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
 				Content: "Skipped to next song",
+				Flags:   dgc.InteractionResponseEphemeral,
 			},
 		})
 	},
